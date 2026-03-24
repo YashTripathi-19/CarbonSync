@@ -71,8 +71,10 @@ The platform connects all stakeholders into a single, streamlined workflow.
 
 ## 🤝 Contributors
 
-- Your Name  
-- Team Members  
+- Yash Tripathi
+- Somiya Chaturvedi
+- Tarang Nemani
+- Utkarsh Tiwari
 
 ---
 
