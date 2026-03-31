@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarbonSync — Auditor Sign In</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Crect width='64' height='64' rx='14' fill='none' stroke='%23c9a84c' stroke-width='2' opacity='0.4'/%3E%3Cg transform='translate(13,10) scale(1.58)' stroke='%23c9a84c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Cpath d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z' fill='%23c9a84c' fill-opacity='0.15'/%3E%3Cpath d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12'/%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/variables.css" />
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--color-bg); display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+    .left { background: #0d0d0d; border-right: 1px solid rgba(201,168,76,0.12); display: flex; flex-direction: column; justify-content: center; padding: 64px; }
+    .left__logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--color-text); margin-bottom: 64px; }
+    .left__tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); padding: 3px 10px; border-radius: var(--radius-pill); margin-left: 6px; }
+    .left h2 { font-family: var(--font-display); font-size: clamp(26px, 3vw, 40px); font-weight: 700; line-height: 1.12; color: var(--color-text); margin-bottom: 16px; }
+    .left h2 em { font-style: normal; color: var(--gold-light); }
+    .left > p { font-size: 15px; color: var(--color-text-muted); line-height: 1.7; max-width: 360px; }
+    .features { margin-top: 44px; display: flex; flex-direction: column; gap: 14px; }
+    .feat { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); position: relative; overflow: hidden; }
+    .feat::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, var(--gold), transparent); }
+    .feat__icon { width: 32px; height: 32px; color: var(--color-text-muted); flex-shrink: 0; margin-top: 2px; }
+    .feat__title { font-size: 14px; font-weight: 600; color: var(--color-text); }
+    .feat__desc { font-size: 12px; color: var(--color-text-muted); margin-top: 3px; }
+    .right { display: flex; align-items: center; justify-content: center; padding: 48px; background: var(--color-bg); }
+    .form-card { width: 100%; max-width: 400px; }
+    .form-card__title { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--color-text); margin-bottom: 6px; }
+    .form-card__sub { font-size: 13px; color: var(--color-text-muted); margin-bottom: 36px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .form-group input { width: 100%; height: 50px; padding: 0 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 14px; color: var(--color-text); outline: none; transition: var(--transition); }
+    .form-group input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
+    .form-group input.error { border-color: #c97070; }
+    .field-error { font-size: 11px; color: #c97070; margin-top: 5px; display: none; }
+    .form-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .remember { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-muted); cursor: pointer; }
+    .remember input[type=checkbox] { accent-color: var(--gold); width: 14px; height: 14px; }
+    .forgot { font-size: 12px; color: var(--gold); font-weight: 600; cursor: pointer; }
+    .forgot:hover { color: var(--gold-light); }
+    .btn-submit { width: 100%; height: 50px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-pill); font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-submit:hover { background: var(--green-light); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(45,106,79,0.3); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--color-border); }
+    .divider span { font-size: 11px; color: var(--color-text-dim); letter-spacing: 0.06em; }
+    .btn-demo { width: 100%; height: 50px; background: transparent; color: var(--gold); border-radius: var(--radius-pill); font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); box-shadow: inset 0 0 0 1px var(--gold-dim); }
+    .btn-demo:hover { background: rgba(201,168,76,0.07); box-shadow: inset 0 0 0 1px var(--gold), 0 0 16px rgba(201,168,76,0.1); color: var(--gold-light); }
+    .links { text-align: center; margin-top: 22px; font-size: 12px; color: var(--color-text-muted); line-height: 2; }
+    .links a { color: var(--gold); font-weight: 600; }
+    .links a:hover { color: var(--gold-light); }
+    @media(max-width:768px) { body { grid-template-columns: 1fr; } .left { display: none; } .right { padding: 32px 20px; } }
+  </style>
+</head>
+<body>
+<div class="left">
+  <div class="left__logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+    CarbonSync <span class="left__tag">Auditor</span>
+  </div>
+  <h2>Verify with confidence.<br /><em>Certify with authority.</em></h2>
+  <p>Access your review queue, certify submissions, and maintain your audit trail — all in one place.</p>
+  <div class="features">
+    <div class="feat">
+      <svg class="feat__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div><div class="feat__title">Smart Review Queue</div><div class="feat__desc">Priority-sorted submissions with anomaly detection flags</div></div>
+    </div>
+    <div class="feat">
+      <svg class="feat__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div><div class="feat__title">Digital Certification</div><div class="feat__desc">Issue tamper-proof audit certificates instantly</div></div>
+    </div>
+    <div class="feat">
+      <svg class="feat__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <div><div class="feat__title">Audit Analytics</div><div class="feat__desc">Track your review history and performance metrics</div></div>
+    </div>
+  </div>
+</div>
+<div class="right">
+  <div class="form-card">
+    <div class="form-card__title">Auditor Sign In</div>
+    <div class="form-card__sub">Enter your certified auditor credentials to access the review portal.</div>
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label>Certification ID</label>
+        <input type="text" id="cert-id" placeholder="e.g. GA-2024-001" />
+        <div class="field-error" id="cert-err">Please enter your certification ID.</div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@agency.com" />
+        <div class="field-error" id="email-err">Please enter a valid email.</div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Enter your password" />
+        <div class="field-error" id="pass-err">Password required.</div>
+      </div>
+      <div class="form-row">
+        <label class="remember"><input type="checkbox" /> Remember me</label>
+        <span class="forgot" onclick="toast('Reset link sent to your registered email')">Forgot password?</span>
+      </div>
+      <button type="submit" class="btn-submit" id="submit-btn">Sign In to Portal</button>
+    </form>
+    <div class="divider"><span>or</span></div>
+    <button class="btn-demo" onclick="fillDemo()">Try Demo Auditor Account</button>
+    <div class="links">
+      New auditor? <a href="#" onclick="toast('Contact your agency admin to register');return false;">Request access</a><br/>
+      <a href="login-company.html">Company login</a> &nbsp;·&nbsp; <a href="login-govt.html">Government login</a>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+  document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const cert  = document.getElementById('cert-id');
+    const email = document.getElementById('email');
+    const pass  = document.getElementById('password');
+    let ok = true;
+    if (!cert.value.trim()) { cert.classList.add('error'); document.getElementById('cert-err').style.display='block'; ok=false; } else { cert.classList.remove('error'); document.getElementById('cert-err').style.display='none'; }
+    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) { email.classList.add('error'); document.getElementById('email-err').style.display='block'; ok=false; } else { email.classList.remove('error'); document.getElementById('email-err').style.display='none'; }
+    if (!pass.value) { pass.classList.add('error'); document.getElementById('pass-err').style.display='block'; ok=false; } else { pass.classList.remove('error'); document.getElementById('pass-err').style.display='none'; }
+    if (!ok) return;
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Verifying...';
+    setTimeout(() => { window.location.href = 'auditor.html'; }, 1400);
+  });
+  function fillDemo() {
+    document.getElementById('cert-id').value = 'GA-2024-001';
+    document.getElementById('email').value = 'priya@greenaudit.in';
+    document.getElementById('password').value = 'demo1234';
+    toast('Demo credentials filled — click Sign In');
+  }
+</script>
+</body>
+</html>

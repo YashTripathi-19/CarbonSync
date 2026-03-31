@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarbonSync — Carbon Compliance, Simplified.</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Crect width='64' height='64' rx='14' fill='none' stroke='%23c9a84c' stroke-width='2' opacity='0.4'/%3E%3Cg transform='translate(13,10) scale(1.58)' stroke='%23c9a84c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Cpath d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z' fill='%23c9a84c' fill-opacity='0.15'/%3E%3Cpath d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12'/%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/variables.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/layout.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <style>
+    /* ── Hero ── */
+    .hero { position:relative; width:100%; height:100vh; min-height:680px; overflow:hidden; background:#050505; }
+    .hero__spline { position:absolute; top:-8%; left:-5%; width:110%; height:116%; border:none; pointer-events:none; opacity:0; transition:opacity 1.4s ease; }
+    .hero__spline.loaded { opacity:1; }
+    .hero__overlay {
+      position:absolute; inset:0; pointer-events:none; z-index:1;
+      background:
+        linear-gradient(to right, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.4) 55%, rgba(5,5,5,0) 100%),
+        linear-gradient(to bottom, rgba(5,5,5,0.4) 0%, rgba(5,5,5,0) 30%, rgba(5,5,5,0.85) 85%, rgba(5,5,5,1) 100%);
+    }
+    .hero__content {
+      position:absolute; bottom:110px; left:0; right:0; padding:0 6vw; z-index:2;
+      animation: heroIn 0.65s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    @keyframes heroIn { from{opacity:0;transform:translateY(18px);} to{opacity:1;transform:translateY(0);} }
+    .hero__eyebrow { font-size:10px; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:18px; }
+    .hero__title { font-family:var(--font-display); font-size:clamp(44px,5.5vw,78px); font-weight:700; line-height:1.05; letter-spacing:-0.03em; color:#fff; max-width:600px; }
+    .hero__title em { font-style:normal; color:var(--gold-light); }
+    .hero__sub { margin-top:18px; font-size:15px; color:rgba(240,236,224,0.5); max-width:400px; line-height:1.7; }
+    .hero__cta { display:flex; align-items:center; gap:16px; margin-top:36px; flex-wrap:wrap; }
+    .hero__scroll { position:absolute; bottom:36px; right:6vw; display:flex; align-items:center; gap:10px; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(201,168,76,0.35); z-index:2; }
+    .hero__scroll-line { width:36px; height:1px; background:rgba(201,168,76,0.25); }
+
+    /* ── Sections ── */
+    .section { padding:var(--space-xl) 0; }
+    .section--alt { background:var(--color-surface); }
+    .section__header { margin-bottom:var(--space-md); }
+    .section__sub { max-width:500px; margin-top:var(--space-sm); font-size:15px; color:var(--color-text-muted); line-height:1.75; }
+
+    /* ── Steps — scroll-driven sticky layout ── */
+    .process-wrap { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; margin-top:var(--space-md); }
+    .process-sticky { position:sticky; top:120px; }
+    .process-sticky__label { font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold-dim); margin-bottom:16px; }
+    .process-sticky__title { font-family:var(--font-display); font-size:clamp(28px,3vw,44px); font-weight:700; line-height:1.1; color:var(--color-text); }
+    .process-sticky__title em { font-style:normal; color:var(--gold-light); }
+    .process-sticky__sub { font-size:14px; color:var(--color-text-muted); margin-top:14px; line-height:1.75; max-width:340px; }
+    .process-progress { margin-top:40px; display:flex; flex-direction:column; gap:0; }
+    .process-dot { display:flex; align-items:center; gap:14px; cursor:pointer; }
+    .process-dot__circle { width:10px; height:10px; border-radius:50%; border:1px solid rgba(201,168,76,0.3); background:transparent; flex-shrink:0; transition:var(--transition); }
+    .process-dot.active .process-dot__circle { background:var(--gold); border-color:var(--gold); box-shadow:0 0 10px rgba(201,168,76,0.4); }
+    .process-dot__text { font-size:12px; color:var(--color-text-dim); transition:var(--transition); }
+    .process-dot.active .process-dot__text { color:var(--gold-light); }
+    .process-dot-line { width:1px; height:28px; background:rgba(201,168,76,0.12); margin-left:4px; }
+
+    .process-steps { display:flex; flex-direction:column; gap:0; }
+    .step-card {
+      padding:40px 0 40px;
+      border-bottom:1px solid rgba(201,168,76,0.07);
+      opacity:0.35;
+      transform:translateX(20px);
+      transition:opacity 0.5s ease, transform 0.5s ease;
+    }
+    .step-card:first-child { padding-top:0; }
+    .step-card.in-view { opacity:1; transform:translateX(0); }
+    .step-card__num { font-size:10px; font-weight:700; letter-spacing:0.2em; color:var(--gold-dim); margin-bottom:18px; }
+    .step-card__icon-wrap {
+      width:52px; height:52px;
+      background:rgba(201,168,76,0.06);
+      border:1px solid rgba(201,168,76,0.12);
+      border-radius:var(--radius-md);
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:20px;
+      color:var(--color-text-muted);
+      transition:var(--transition);
+    }
+    .step-card.in-view .step-card__icon-wrap { color:var(--gold); border-color:rgba(201,168,76,0.3); background:rgba(201,168,76,0.1); }
+    .step-card__icon-wrap svg { width:24px; height:24px; }
+    .step-card h3 { font-size:20px; color:var(--color-text); }
+    .step-card p { font-size:14px; margin-top:10px; color:var(--color-text-muted); line-height:1.75; max-width:380px; }
+    .step-card__tag { display:inline-flex; align-items:center; gap:6px; margin-top:18px; font-size:11px; font-weight:600; letter-spacing:0.06em; color:var(--gold-dim); }
+    .step-card__tag::before { content:''; width:20px; height:1px; background:rgba(201,168,76,0.3); }
+
+    /* ── Features grid ── */
+
+    /* ── Features grid ── */
+    .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.1); border-radius:var(--radius-md); overflow:hidden; }
+    .feature-cell { background:var(--color-bg); padding:36px 32px; transition:background 0.3s ease, transform 0.2s ease; transform-style:preserve-3d; will-change:transform; }
+    .feature-cell:hover { background:var(--color-surface); }
+    .feature-cell__icon { width:32px; height:32px; margin-bottom:18px; color:var(--color-text-muted); transition:color 0.3s ease; }
+    .feature-cell:hover .feature-cell__icon { color:var(--gold); }
+    .feature-cell h3 { font-size:16px; color:var(--color-text); }
+    .feature-cell p { font-size:13px; margin-top:8px; color:var(--color-text-muted); line-height:1.65; }
+
+    /* ── Role cards ── */
+    .role-card { background:var(--color-surface); border-radius:var(--radius-md); padding:36px; border:1px solid var(--color-border); transition:var(--transition); position:relative; overflow:hidden; }
+    .role-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent, var(--gold), transparent); opacity:0; transition:opacity 0.3s; }
+    .role-card:hover { border-color:rgba(201,168,76,0.25); transform:translateY(-4px); box-shadow:var(--shadow-hover); }
+    .role-card:hover::before { opacity:1; }
+    .role-card__icon { width:32px; height:32px; margin-bottom:18px; color:var(--color-text-muted); }
+    .role-card h3 { font-size:18px; color:var(--color-text); }
+    .role-card ul { margin:14px 0; display:flex; flex-direction:column; gap:9px; }
+    .role-card ul li { font-size:13px; color:var(--color-text-muted); display:flex; align-items:center; gap:10px; }
+    .role-card ul li::before { content:''; width:16px; height:1px; background:rgba(201,168,76,0.3); flex-shrink:0; }
+    .role-card__link { font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold); transition:var(--transition); }
+    .role-card__link:hover { color:var(--gold-light); }
+
+    /* ── CTA section ── */
+    .cta-section { background:var(--color-surface); padding:var(--space-xl) 0; text-align:center; border-top:1px solid rgba(201,168,76,0.1); }
+    .cta-section h2 { color:var(--color-text); }
+    .cta-section p { color:var(--color-text-muted); margin-top:var(--space-xs); font-size:15px; }
+    .cta-form { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:var(--space-md); flex-wrap:wrap; }
+    .cta-form .input { max-width:300px; }
+    .cta-form .btn-signup { height:52px; padding:0 32px; background:var(--green); color:#fff; font-weight:600; font-size:13px; letter-spacing:0.06em; border:none; border-radius:var(--radius-pill); cursor:pointer; transition:var(--transition); }
+    .cta-form .btn-signup:hover { background:var(--green-light); transform:translateY(-2px); }
+    .cta-trust { margin-top:var(--space-sm); font-size:12px; color:var(--color-text-dim); letter-spacing:0.04em; }
+
+    /* ── Footer ── */
+    .footer { padding:36px 5vw; border-top:1px solid rgba(201,168,76,0.1); display:flex; align-items:center; justify-content:space-between; background:var(--color-bg); }
+    .footer__copy { font-size:12px; color:var(--color-text-dim); letter-spacing:0.04em; }
+
+    /* ── Services / Pricing ── */
+    .services-tabs { display:flex; align-items:center; gap:8px; margin-bottom:var(--space-md); }
+    .services-tab { padding:9px 22px; border-radius:var(--radius-pill); font-size:13px; font-weight:600; letter-spacing:0.04em; cursor:pointer; border:1px solid var(--color-border); background:transparent; color:var(--color-text-muted); transition:var(--transition); }
+    .services-tab.active { background:rgba(201,168,76,0.1); border-color:var(--gold-dim); color:var(--gold-light); }
+    .services-tab:hover:not(.active) { border-color:rgba(201,168,76,0.2); color:var(--color-text); }
+
+    .plans-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+    .plan-card {
+      background:var(--color-surface);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-md);
+      padding:32px 24px 28px;
+      display:flex; flex-direction:column;
+      position:relative; overflow:hidden;
+      transition:var(--transition);
+    }
+    .plan-card:hover { transform:translateY(-6px); box-shadow:var(--shadow-hover); border-color:rgba(201,168,76,0.2); }
+    .plan-card--featured {
+      border-color:rgba(201,168,76,0.35);
+      background:linear-gradient(160deg, #161410 0%, var(--color-surface) 100%);
+    }
+    .plan-card--featured::before {
+      content:'Most Popular';
+      position:absolute; top:0; right:0;
+      background:var(--gold); color:#0a0a0a;
+      font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+      padding:5px 14px; border-bottom-left-radius:var(--radius-sm);
+    }
+    .plan-card__name { font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold-dim); margin-bottom:12px; }
+    .plan-card__price { font-family:var(--font-display); font-size:36px; font-weight:700; color:var(--color-text); line-height:1; }
+    .plan-card__price span { font-size:14px; font-weight:400; color:var(--color-text-muted); }
+    .plan-card__desc { font-size:13px; color:var(--color-text-muted); margin:10px 0 22px; line-height:1.6; }
+    .plan-card__divider { height:1px; background:rgba(201,168,76,0.1); margin-bottom:20px; }
+    .plan-card__features { list-style:none; display:flex; flex-direction:column; gap:10px; flex:1; }
+    .plan-card__features li { font-size:13px; color:var(--color-text-muted); display:flex; align-items:flex-start; gap:10px; }
+    .plan-card__features li svg { width:14px; height:14px; color:var(--gold); flex-shrink:0; margin-top:2px; }
+    .plan-card__features li.dim { color:var(--color-text-dim); }
+    .plan-card__features li.dim svg { color:var(--color-text-dim); }
+    .plan-card__cta {
+      display:block; text-align:center;
+      margin-top:24px; padding:12px 0;
+      border-radius:var(--radius-pill);
+      font-size:13px; font-weight:600; letter-spacing:0.05em;
+      border:1px solid var(--gold-dim); color:var(--gold);
+      transition:var(--transition); cursor:pointer;
+      text-decoration:none;
+    }
+    .plan-card__cta:hover { background:rgba(201,168,76,0.1); border-color:var(--gold); color:var(--gold-light); }
+    .plan-card--featured .plan-card__cta { background:var(--gold); color:#0a0a0a; border-color:var(--gold); }
+    .plan-card--featured .plan-card__cta:hover { background:var(--gold-light); border-color:var(--gold-light); }
+
+    .plans-panel { display:none; }
+    .plans-panel.active { display:block; }
+
+    @media(max-width:1024px) { .plans-row { grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:768px) {
+      .process-wrap { grid-template-columns:1fr; gap:40px; }
+      .process-sticky { position:static; }
+      .process-progress { display:none; }
+      .step-card { opacity:1; transform:none; }
+      .features-grid { grid-template-columns:1fr; }
+      .plans-row { grid-template-columns:1fr; }
+      .footer { flex-direction:column; gap:var(--space-sm); text-align:center; }
+
+      /* Hero */
+      .hero__content { bottom:80px; padding:0 5vw; }
+      .hero__title { font-size:clamp(36px,9vw,56px); }
+      .hero__sub { font-size:14px; max-width:100%; }
+      .hero__cta { gap:12px; }
+      .hero__scroll { display:none; }
+
+      /* Sections */
+      .section { padding:var(--space-lg) 0; }
+      .section__header { margin-bottom:var(--space-sm); }
+
+      /* Role cards */
+      .role-card { padding:24px; }
+
+      /* CTA form */
+      .cta-form { flex-direction:column; align-items:stretch; }
+      .cta-form .input { max-width:100%; }
+      .cta-form .btn-signup { width:100%; }
+    }
+
+    @media(max-width:480px) {
+      .hero__title { font-size:clamp(32px,10vw,48px); }
+      .hero__content { bottom:60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="container flex-between" style="width:100%;">
+    <a href="#" class="navbar__logo" style="display:flex;align-items:center;gap:9px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);">
+        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+      </svg>
+      CarbonSync
+    </a>
+    <ul class="navbar__links" style="position:absolute;left:50%;transform:translateX(-50%);">
+      <li><a href="#how-it-works">Process</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#portals">Portals</a></li>
+      <li><a href="#services">Services</a></li>
+    </ul>
+    <a href="pages/login.html" class="btn-ghost" style="padding:10px 24px;font-size:13px;">Sign In</a>
+    <button class="navbar__hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile nav drawer -->
+<div class="navbar__drawer" id="nav-drawer">
+  <a href="#how-it-works" onclick="closeDrawer()">Process</a>
+  <a href="#features" onclick="closeDrawer()">Features</a>
+  <a href="#portals" onclick="closeDrawer()">Portals</a>
+  <a href="#services" onclick="closeDrawer()">Services</a>
+  <a href="pages/login.html" class="btn-primary" style="margin-top:8px;text-align:center;display:block;">Sign In</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <iframe class="hero__spline" src="https://my.spline.design/theeternalarc-JA1ld4abg0mpn0dML2IbqdUZ-bbD/" title="3D hero" loading="eager" allow="autoplay"></iframe>
+  <div class="hero__overlay"></div>
+  <div class="hero__content">
+    <p class="hero__eyebrow">Built for India's Net Zero 2070</p>
+    <h1 class="hero__title">Carbon Compliance,<br /><em>Simplified.</em></h1>
+    <p class="hero__sub">One platform for companies, auditors, and regulators to track, verify, and report carbon emissions — transparently.</p>
+    <div class="hero__cta">
+      <a href="#signup" class="btn-primary">Get Started</a>
+      <a href="#how-it-works" class="btn-ghost">See How It Works</a>
+    </div>
+  </div>
+  <div class="hero__scroll">
+    <span class="hero__scroll-line"></span>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="process-wrap">
+
+      <!-- Left: sticky heading + progress dots -->
+      <div class="process-sticky reveal">
+        <div class="process-sticky__label">The Process</div>
+        <h2 class="process-sticky__title">Three steps to<br/><em>full compliance</em></h2>
+        <p class="process-sticky__sub">From raw emissions data to verified government reports — every handoff handled automatically.</p>
+        <div class="process-progress" id="process-progress">
+          <div class="process-dot active" data-step="0">
+            <div class="process-dot__circle"></div>
+            <span class="process-dot__text">Companies Submit</span>
+          </div>
+          <div class="process-dot-line"></div>
+          <div class="process-dot" data-step="1">
+            <div class="process-dot__circle"></div>
+            <span class="process-dot__text">Auditors Verify</span>
+          </div>
+          <div class="process-dot-line"></div>
+          <div class="process-dot" data-step="2">
+            <div class="process-dot__circle"></div>
+            <span class="process-dot__text">Governments Monitor</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: scrollable step cards -->
+      <div class="process-steps" id="process-steps">
+
+        <div class="step-card" data-step="0">
+          <p class="step-card__num">01 / 03</p>
+          <div class="step-card__icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <h3>Companies Submit</h3>
+          <p>Upload scope 1, 2 &amp; 3 emissions data through a guided dashboard. Structured templates ensure nothing is missed.</p>
+          <span class="step-card__tag">Guided data entry</span>
+        </div>
+
+        <div class="step-card" data-step="1">
+          <p class="step-card__num">02 / 03</p>
+          <div class="step-card__icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3>Auditors Verify</h3>
+          <p>Certified auditors review, flag discrepancies, and digitally sign off on every submission — with a full audit trail.</p>
+          <span class="step-card__tag">Immutable audit log</span>
+        </div>
+
+        <div class="step-card" data-step="2">
+          <p class="step-card__num">03 / 03</p>
+          <div class="step-card__icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+          </div>
+          <h3>Governments Monitor</h3>
+          <p>Regulators access live dashboards, enforce compliance rules, and generate policy reports from verified data feeds.</p>
+          <span class="step-card__tag">Real-time oversight</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section section--alt" id="features">
+  <div class="container">
+    <div class="section__header reveal">
+      <div class="section-label"><span>Platform Features</span></div>
+      <h2>Everything compliance needs</h2>
+    </div>
+    <div class="features-grid" style="margin-top:var(--space-md);" data-stagger>
+      <div class="feature-cell reveal">
+        <svg class="feature-cell__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <h3>Real-Time Dashboard</h3>
+        <p>Live emissions tracking with drill-down by scope, site, and reporting period.</p>
+      </div>
+      <div class="feature-cell reveal">
+        <svg class="feature-cell__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <h3>Audit Trail</h3>
+        <p>Immutable logs of every submission, edit, and verification action.</p>
+      </div>
+      <div class="feature-cell reveal">
+        <svg class="feature-cell__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <h3>Emissions Analytics</h3>
+        <p>Trend charts, year-on-year comparisons, and reduction forecasting.</p>
+      </div>
+      <div class="feature-cell reveal">
+        <svg class="feature-cell__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <h3>Deadline Alerts</h3>
+        <p>Automated reminders for reporting windows and compliance deadlines.</p>
+      </div>
+      <div class="feature-cell reveal">
+        <svg class="feature-cell__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <h3>Role-Based Access</h3>
+        <p>Granular permissions for companies, auditors, and government bodies.</p>
+      </div>
+      <div class="feature-cell reveal">
+        <svg class="feature-cell__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+        <h3>One-Click Reports</h3>
+        <p>Export audit-ready PDF and CSV reports for any period in seconds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTALS -->
+<section class="section" id="portals">
+  <div class="container">
+    <div class="section__header reveal">
+      <div class="section-label"><span>Who It's For</span></div>
+      <h2>Built for every stakeholder</h2>
+    </div>
+    <div class="grid-3 reveal" style="margin-top:var(--space-md);" data-stagger>
+      <div class="role-card reveal">
+        <svg class="role-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        <h3>Companies</h3>
+        <ul>
+          <li>Submit scope 1, 2 &amp; 3 data</li>
+          <li>Track reduction targets</li>
+          <li>Manage carbon credits</li>
+          <li>Download compliance reports</li>
+        </ul>
+        <a href="pages/login-company.html" class="role-card__link">Access Portal</a>
+      </div>
+      <div class="role-card reveal">
+        <svg class="role-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <h3>Auditors</h3>
+        <ul>
+          <li>Review pending submissions</li>
+          <li>Flag discrepancies</li>
+          <li>Issue digital certifications</li>
+          <li>Maintain audit history</li>
+        </ul>
+        <a href="pages/login-auditor.html" class="role-card__link">Access Portal</a>
+      </div>
+      <div class="role-card reveal">
+        <svg class="role-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+        <h3>Government Bodies</h3>
+        <ul>
+          <li>Monitor national emissions</li>
+          <li>Enforce compliance rules</li>
+          <li>Access verified data feeds</li>
+          <li>Generate policy reports</li>
+        </ul>
+        <a href="pages/login-govt.html" class="role-card__link">Access Portal</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OUR SERVICES -->
+<section class="section section--alt" id="services">
+  <div class="container">
+    <div class="section__header reveal">
+      <div class="section-label"><span>Our Services</span></div>
+      <h2>Plans for every scale</h2>
+      <p class="section__sub">Whether you're a growing company or a certified auditor, we have a plan that fits your compliance needs.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="services-tabs reveal" style="margin-top:var(--space-md);">
+      <button class="services-tab active" onclick="switchTab('companies', this)">For Companies</button>
+      <button class="services-tab" onclick="switchTab('auditors', this)">For Auditors</button>
+    </div>
+
+    <!-- Companies Plans -->
+    <div class="plans-panel active" id="panel-companies">
+      <div class="plans-row reveal" data-stagger>
+
+        <div class="plan-card reveal">
+          <div class="plan-card__name">Starter</div>
+          <div class="plan-card__price">₹0 <span>/ month</span></div>
+          <div class="plan-card__desc">For small businesses just getting started with carbon tracking.</div>
+          <div class="plan-card__divider"></div>
+          <ul class="plan-card__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 3 facilities</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Scope 1 &amp; 2 tracking</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Basic dashboard</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Annual PDF report</li>
+            <li class="dim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Auditor assignment</li>
+            <li class="dim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>API access</li>
+          </ul>
+          <a href="#signup" class="plan-card__cta">Get Started Free</a>
+        </div>
+
+        <div class="plan-card plan-card--featured reveal">
+          <div class="plan-card__name">Growth</div>
+          <div class="plan-card__price">₹4,999 <span>/ month</span></div>
+          <div class="plan-card__desc">For mid-size companies with active compliance requirements.</div>
+          <div class="plan-card__divider"></div>
+          <ul class="plan-card__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 20 facilities</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Scope 1, 2 &amp; 3 tracking</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Advanced analytics</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auditor assignment</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Quarterly reports</li>
+            <li class="dim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>API access</li>
+          </ul>
+          <a href="#signup" class="plan-card__cta">Purchase Plan</a>
+        </div>
+
+        <div class="plan-card reveal">
+          <div class="plan-card__name">Enterprise</div>
+          <div class="plan-card__price">₹14,999 <span>/ month</span></div>
+          <div class="plan-card__desc">For large corporations with multi-site, multi-entity reporting.</div>
+          <div class="plan-card__divider"></div>
+          <ul class="plan-card__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited facilities</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Full scope tracking</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated auditor pool</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>REST API access</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom report templates</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support (SLA)</li>
+          </ul>
+          <a href="#signup" class="plan-card__cta">Purchase Plan</a>
+        </div>
+
+        <div class="plan-card reveal">
+          <div class="plan-card__name">Custom</div>
+          <div class="plan-card__price" style="font-size:26px;">Let's Talk</div>
+          <div class="plan-card__desc">Tailored solutions for conglomerates, PSUs, and regulated sectors.</div>
+          <div class="plan-card__divider"></div>
+          <ul class="plan-card__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Enterprise</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>White-label option</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>On-premise deployment</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated account manager</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom integrations</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>24/7 dedicated support</li>
+          </ul>
+          <a href="mailto:sales@carbonsync.in" class="plan-card__cta">Contact Sales</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Auditors Plans -->
+    <div class="plans-panel" id="panel-auditors">
+      <div class="plans-row reveal" data-stagger>
+
+        <div class="plan-card reveal">
+          <div class="plan-card__name">Basic</div>
+          <div class="plan-card__price">₹0 <span>/ month</span></div>
+          <div class="plan-card__desc">For independent auditors handling a small client base.</div>
+          <div class="plan-card__divider"></div>
+          <ul class="plan-card__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 5 active clients</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Review &amp; flag submissions</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Digital sign-off</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Audit history log</li>
+            <li class="dim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Priority client matching</li>
+            <li class="dim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Certification badge</li>
+          </ul>
+          <a href="#signup" class="plan-card__cta">Get Started Free</a>
+        </div>
+
+        <div class="plan-card plan-card--featured reveal">
+          <div class="plan-card__name">Professional</div>
+          <div class="plan-card__price">₹2,999 <span>/ month</span></div>
+          <div class="plan-card__desc">For certified auditors managing multiple corporate clients.</div>
+          <div class="plan-card__divider"></div>
+          <ul class="plan-card__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 25 active clients</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority client matching</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Verified badge on profile</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Bulk review tools</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Exportable audit reports</li>
+            <li class="dim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Firm-level dashboard</li>
+          </ul>
+          <a href="#signup" class="plan-card__cta">Purchase Plan</a>
+        </div>
+
+        <div class="plan-card reveal">
+          <div class="plan-card__name">Firm</div>
+          <div class="plan-card__price">₹8,999 <span>/ month</span></div>
+          <div class="plan-card__desc">For audit firms with multiple auditors and large client portfolios.</div>
+          <div class="plan-card__divider"></div>
+          <ul class="plan-card__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited clients</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Up to 10 auditor seats</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Firm-level dashboard</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Workload distribution</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Compliance analytics</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
+          </ul>
+          <a href="#signup" class="plan-card__cta">Purchase Plan</a>
+        </div>
+
+        <div class="plan-card reveal">
+          <div class="plan-card__name">Enterprise</div>
+          <div class="plan-card__price" style="font-size:26px;">Let's Talk</div>
+          <div class="plan-card__desc">For national audit bodies and large-scale regulatory partners.</div>
+          <div class="plan-card__divider"></div>
+          <ul class="plan-card__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Firm</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited auditor seats</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom certification flows</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Govt. data feed integration</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated account manager</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>24/7 dedicated support</li>
+          </ul>
+          <a href="mailto:sales@carbonsync.in" class="plan-card__cta">Contact Sales</a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="signup">
+  <div class="container reveal">
+    <div class="section-label" style="justify-content:center;"><span>Get Early Access</span></div>
+    <h2 style="margin-top:var(--space-xs);">Start your compliance journey.</h2>
+    <p>Join 200+ companies already tracking emissions on CarbonSync.</p>
+    <form class="cta-form" id="cta-form">
+      <input class="input" type="email" id="cta-email" placeholder="Enter your work email" required />
+      <button type="submit" class="btn-signup">Sign Up Free</button>
+    </form>
+    <p class="cta-trust">No credit card required · Free for the first 3 months · Cancel anytime</p>
+    <div id="cta-msg" style="margin-top:14px;font-size:13px;color:var(--gold);display:none;"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <a href="#" style="display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--color-text);">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+    CarbonSync
+  </a>
+  <p class="footer__copy">2025 CarbonSync. All rights reserved.</p>
+  <a href="https://github.com" target="_blank" rel="noopener noreferrer" style="color:var(--color-text-muted);" aria-label="GitHub">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+  </a>
+</footer>
+
+<script src="scripts/animations.js"></script>
+<script src="scripts/main.js"></script>
+<script>
+  // ── Process: scroll-driven step activation ──────────────────────────────
+  (function() {
+    const steps = document.querySelectorAll('.step-card');
+    const dots  = document.querySelectorAll('.process-dot');
+    if (!steps.length) return;
+
+    const stepObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const idx = parseInt(entry.target.dataset.step);
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          dots.forEach(d => d.classList.remove('active'));
+          if (dots[idx]) dots[idx].classList.add('active');
+        } else {
+          entry.target.classList.remove('in-view');
+        }
+      });
+    }, { threshold: 0.45, rootMargin: '-10% 0px -10% 0px' });
+
+    steps.forEach(s => stepObserver.observe(s));
+
+    // Dot click → smooth scroll to step
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        const target = document.querySelector(`.step-card[data-step="${dot.dataset.step}"]`);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
+  })();
+
+  // ── Feature cells: 3D tilt on mouse move ────────────────────────────────
+  document.querySelectorAll('.feature-cell').forEach(cell => {
+    cell.addEventListener('mousemove', e => {
+      const r = cell.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - 0.5;
+      const y = (e.clientY - r.top)  / r.height - 0.5;
+      cell.style.transform = `perspective(600px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateZ(4px)`;
+    });
+    cell.addEventListener('mouseleave', () => {
+      cell.style.transform = '';
+    });
+  });
+
+  // Spline fade-in after load
+  const spline = document.querySelector('.hero__spline');
+  if (spline) {
+    spline.addEventListener('load', () => spline.classList.add('loaded'));
+    setTimeout(() => spline.classList.add('loaded'), 4000);
+  }
+  // Navbar — transparent over hero, solid black after scrolling past it
+  const navbar = document.getElementById('navbar');
+  const heroHeight = document.querySelector('.hero')?.offsetHeight || window.innerHeight;
+
+  // Hamburger menu
+  const hamburger = document.getElementById('hamburger');
+  const drawer    = document.getElementById('nav-drawer');
+  hamburger.addEventListener('click', () => {
+    drawer.classList.toggle('open');
+    const open = drawer.classList.contains('open');
+    hamburger.setAttribute('aria-expanded', open);
+    // Animate bars
+    const bars = hamburger.querySelectorAll('span');
+    if (open) {
+      bars[0].style.transform = 'translateY(6.5px) rotate(45deg)';
+      bars[1].style.opacity   = '0';
+      bars[2].style.transform = 'translateY(-6.5px) rotate(-45deg)';
+    } else {
+      bars.forEach(b => { b.style.transform = ''; b.style.opacity = ''; });
+    }
+  });
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    hamburger.querySelectorAll('span').forEach(b => { b.style.transform = ''; b.style.opacity = ''; });
+  }
+  function updateNavbar() {
+    navbar.classList.toggle('navbar--scrolled', window.scrollY > heroHeight * 0.85);
+  }
+  window.addEventListener('scroll', updateNavbar, { passive: true });
+  updateNavbar(); // run once on load in case page is already scrolled
+  // Services tab switcher
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.services-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.plans-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  // CTA form
+  document.getElementById('cta-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('cta-email').value;
+    const msg = document.getElementById('cta-msg');
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      msg.style.display = 'block'; msg.style.color = '#c97070';
+      msg.textContent = 'Please enter a valid email address.'; return;
+    }
+    msg.style.display = 'block'; msg.style.color = 'var(--gold)';
+    msg.textContent = 'Redirecting you to sign up...';
+    setTimeout(() => { window.location.href = 'pages/login.html'; }, 1200);
+  });
+</script>
+</body>
+</html>

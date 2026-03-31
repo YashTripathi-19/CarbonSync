@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarbonSync — Company Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Crect width='64' height='64' rx='14' fill='none' stroke='%23c9a84c' stroke-width='2' opacity='0.4'/%3E%3Cg transform='translate(13,10) scale(1.58)' stroke='%23c9a84c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Cpath d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z' fill='%23c9a84c' fill-opacity='0.15'/%3E%3Cpath d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12'/%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/variables.css" />
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <style>
+    body { background: var(--color-bg); color: var(--color-text); }
+    .dash-shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar { background: #0d0d0d; border-right: 1px solid rgba(201,168,76,0.12); padding: 24px 0; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
+    .sidebar__logo { display: flex; align-items: center; gap: 9px; padding: 0 20px 24px; font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--color-text); border-bottom: 1px solid rgba(201,168,76,0.1); }
+    .sidebar__nav { flex: 1; padding: 16px 0; }
+    .sidebar__nav a { display: flex; align-items: center; gap: 11px; padding: 11px 20px; font-size: 13px; font-weight: 500; color: var(--color-text-muted); transition: var(--transition); border-left: 2px solid transparent; cursor: pointer; }
+    .sidebar__nav a:hover, .sidebar__nav a.active { color: var(--gold-light); background: rgba(201,168,76,0.05); border-left-color: var(--gold); }
+    .sidebar__nav a svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar__footer { padding: 16px 20px; border-top: 1px solid rgba(201,168,76,0.1); font-size: 12px; color: var(--color-text-dim); }
+
+    /* Main */
+    .dash-main { padding: 32px 36px; overflow-y: auto; }
+    .dash-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .dash-topbar h1 { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--color-text); }
+    .dash-topbar p { font-size: 13px; color: var(--color-text-muted); margin-top: 3px; }
+    .live-badge { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--gold); font-weight: 600; background: rgba(201,168,76,0.07); padding: 5px 14px; border-radius: var(--radius-pill); border: 1px solid rgba(201,168,76,0.2); }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green-light); animation: blink 1.2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+    /* Stat cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--color-surface); border-radius: var(--radius-md); padding: 22px; border: 1px solid var(--color-border); position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .stat-card__label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: 8px; }
+    .stat-card__value { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--color-text); line-height: 1; }
+    .stat-card__value span { font-size: 12px; font-weight: 400; color: var(--color-text-muted); margin-left: 3px; }
+    .stat-card__delta { font-size: 11px; margin-top: 8px; }
+    .delta--down { color: var(--green-light); }
+    .delta--up { color: #c97070; }
+
+    /* Charts */
+    .chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .chart-box { background: var(--color-surface); border-radius: var(--radius-md); padding: 22px; border: 1px solid var(--color-border); }
+    .chart-box__title { font-size: 14px; font-weight: 600; color: var(--color-text); margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+    .chart-box__title span { font-size: 11px; color: var(--color-text-muted); font-weight: 400; }
+    .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 130px; }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 100%; justify-content: flex-end; }
+    .bar { width: 100%; border-radius: 3px 3px 0 0; background: var(--color-surface-2); border: 1px solid rgba(201,168,76,0.15); transition: height 1s cubic-bezier(0.4,0,0.2,1); }
+    .bar.accent { background: rgba(201,168,76,0.2); border-color: var(--gold-dim); }
+    .bar-label { font-size: 10px; color: var(--color-text-muted); }
+
+    /* Donut */
+    .donut-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 14px; }
+    .donut-svg { width: 110px; height: 110px; transform: rotate(-90deg); }
+    .donut-legend { width: 100%; display: flex; flex-direction: column; gap: 7px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-muted); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Table */
+    .table-box { background: var(--color-surface); border-radius: var(--radius-md); padding: 22px; border: 1px solid var(--color-border); }
+    .table-box__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .table-box__header span { font-size: 14px; font-weight: 600; color: var(--color-text); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); padding: 0 10px 10px; border-bottom: 1px solid var(--color-border); }
+    td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--color-text); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(201,168,76,0.03); }
+    .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 600; }
+    .status-pill--verified { background: rgba(45,106,79,0.15); color: var(--green-light); border: 1px solid rgba(45,106,79,0.25); }
+    .status-pill--pending  { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+    .status-pill--rejected { background: rgba(180,50,50,0.12); color: #c97070; border: 1px solid rgba(180,50,50,0.2); }
+    .status-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* Terminal */
+    .terminal { background: #080808; border: 1px solid rgba(201,168,76,0.12); border-radius: var(--radius-md); padding: 18px; font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 12px; color: var(--gold-light); margin-top: 18px; min-height: 110px; }
+    .terminal__bar { display: flex; gap: 6px; margin-bottom: 12px; }
+    .terminal__dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal__line { margin: 3px 0; line-height: 1.6; }
+    .terminal__line .prompt { color: var(--gold); }
+    .terminal__line .cmd { color: var(--color-text); }
+    .terminal__line .out { color: var(--color-text-muted); }
+    .cursor { display: inline-block; width: 7px; height: 13px; background: var(--gold); animation: blink 1s step-end infinite; vertical-align: text-bottom; margin-left: 2px; }
+
+    /* Onboarding */
+    .onboard { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: flex; align-items: center; justify-content: center; }
+    .onboard.hidden { display: none; }
+    .ob-card { background: var(--color-surface); border: 1px solid rgba(201,168,76,0.2); border-radius: var(--radius-lg); padding: 36px; max-width: 480px; width: 90%; box-shadow: 0 0 60px rgba(201,168,76,0.08); }
+    .ob-dots { display: flex; gap: 8px; margin-bottom: 24px; }
+    .ob-dot { flex: 1; height: 2px; border-radius: 999px; background: var(--color-border); transition: background 0.3s; }
+    .ob-dot.done { background: var(--gold); }
+    .ob-card h2 { font-family: var(--font-display); font-size: 20px; color: var(--color-text); margin-bottom: 10px; }
+    .ob-card p { font-size: 13px; color: var(--color-text-muted); line-height: 1.7; margin-bottom: 18px; }
+    .ob-demo { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 16px; font-size: 12px; color: var(--color-text-muted); margin-bottom: 24px; line-height: 2; }
+    .ob-demo strong { color: var(--gold); }
+    .ob-actions { display: flex; justify-content: space-between; align-items: center; }
+    .ob-skip { font-size: 12px; color: var(--color-text-dim); cursor: pointer; }
+    .ob-skip:hover { color: var(--color-text-muted); }
+    .ob-next { padding: 10px 28px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-pill); font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); font-family: var(--font-body); }
+    .ob-next:hover { background: var(--green-light); }
+
+    /* New submission btn */
+    .btn-new { padding: 9px 20px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-pill); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); font-family: var(--font-body); }
+    .btn-new:hover { background: var(--green-light); transform: translateY(-1px); }
+
+    @media(max-width:900px){ .dash-shell{grid-template-columns:1fr;} .sidebar{display:none;} .stats-grid{grid-template-columns:repeat(2,1fr);} .chart-row{grid-template-columns:1fr;} }
+    @media(max-width:600px){
+      .stats-grid{grid-template-columns:1fr;}
+      .dash-main{padding:20px 16px;}
+      .dash-topbar h1{font-size:18px;}
+      .stat-card__value{font-size:22px;}
+      .table-box{overflow-x:auto;}
+      table{min-width:480px;}
+      .terminal{font-size:11px;}
+    }
+  </style>
+</head>
+<body>
+<!-- Onboarding overlay -->
+<div class="onboard" id="onboard">
+  <div class="ob-card">
+    <div class="ob-dots">
+      <div class="ob-dot done" id="od0"></div>
+      <div class="ob-dot" id="od1"></div>
+      <div class="ob-dot" id="od2"></div>
+    </div>
+    <h2 id="ob-title">Welcome to your Dashboard</h2>
+    <p id="ob-body">Your carbon command centre. Track emissions, manage submissions, and stay compliant — all in one place.</p>
+    <div class="ob-demo" id="ob-demo">
+      <strong>Quick tour:</strong><br/>
+      Stat cards — live emissions snapshot<br/>
+      Bar chart — monthly progress<br/>
+      Submissions table — all your filings<br/>
+      Terminal — real-time sync status
+    </div>
+    <div class="ob-actions">
+      <span class="ob-skip" onclick="document.getElementById('onboard').classList.add('hidden')">Skip tour</span>
+      <button class="ob-next" onclick="nextObDash()" id="ob-btn">Next</button>
+    </div>
+  </div>
+</div>
+
+<div class="dash-shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      CarbonSync
+    </div>
+    <nav class="sidebar__nav">
+      <a href="dashboard.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Emissions
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Submissions
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Credits
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a>
+    </nav>
+    <div class="sidebar__footer">Tata Steel Ltd · FY 2024–25</div>
+  </aside>
+
+  <!-- Toast -->
+  <div id="dash-toast" style="position:fixed;bottom:24px;right:24px;background:#1a1a2e;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;transform:translateY(60px);opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);z-index:999;"></div>
+
+  <!-- ── Main ── -->
+  <main class="dash-main">
+
+    <div class="dash-topbar">
+      <div>
+        <h1>Good morning, Arjun</h1>
+        <p style="font-size:14px;margin-top:4px;">Here's your emissions snapshot for Q4 FY2025</p>
+      </div>
+      <div class="live-badge">
+        <span class="live-dot"></span> Live Data
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card__label">Total Emissions</div>
+        <div class="stat-card__value" id="stat-emissions">—<span>tCO₂e</span></div>
+        <div class="stat-card__delta delta--down">↓ 6.2% vs last quarter</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Carbon Credits</div>
+        <div class="stat-card__value" id="stat-credits">—<span>units</span></div>
+        <div class="stat-card__delta delta--down">↑ 120 purchased this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Target Gap</div>
+        <div class="stat-card__value" id="stat-gap">—<span>tCO₂e</span></div>
+        <div class="stat-card__delta delta--up">↑ needs attention</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Submissions</div>
+        <div class="stat-card__value" id="stat-subs">—</div>
+        <div class="stat-card__delta delta--down">3 verified this week</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-row">
+      <div class="chart-box">
+        <div class="chart-box__title">
+          Monthly Emissions (tCO₂e)
+          <span style="font-size:12px;color:var(--color-text-muted);font-weight:400;">Jan – Jun 2025</span>
+        </div>
+        <div class="chart-bars" id="bar-chart"></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box__title">Scope Breakdown</div>
+        <div class="donut-wrap">
+          <svg class="donut-svg" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" stroke-width="3.2"/>
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#2D6A4F" stroke-width="3.2" stroke-dasharray="50 50" stroke-dashoffset="0" id="donut-s1"/>
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#74C69D" stroke-width="3.2" stroke-dasharray="30 70" stroke-dashoffset="-50" id="donut-s2"/>
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#bbf7d0" stroke-width="3.2" stroke-dasharray="20 80" stroke-dashoffset="-80" id="donut-s3"/>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:#2D6A4F"></span>Scope 1 — 50%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#74C69D"></span>Scope 2 — 30%</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#bbf7d0"></span>Scope 3 — 20%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submissions table -->
+    <div class="table-box">
+      <div class="table-box__header">
+        <span style="font-size:15px;font-weight:600;">Recent Submissions</span>
+        <button class="btn-new" onclick="showDashToast('New submission form coming soon — backend integration pending','')">+ New Submission</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Period</th><th>Scope</th><th>Emissions (tCO₂e)</th><th>Submitted</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>#CS-0041</td><td>Q4 FY2025</td><td>Scope 1</td><td>12,400</td><td>28 Mar 2025</td><td><span class="status-pill status-pill--verified"><span class="status-dot"></span>Verified</span></td></tr>
+          <tr><td>#CS-0040</td><td>Q4 FY2025</td><td>Scope 2</td><td>8,200</td><td>27 Mar 2025</td><td><span class="status-pill status-pill--pending"><span class="status-dot"></span>Pending</span></td></tr>
+          <tr><td>#CS-0039</td><td>Q3 FY2025</td><td>Scope 1</td><td>13,100</td><td>15 Jan 2025</td><td><span class="status-pill status-pill--verified"><span class="status-dot"></span>Verified</span></td></tr>
+          <tr><td>#CS-0038</td><td>Q3 FY2025</td><td>Scope 3</td><td>6,800</td><td>14 Jan 2025</td><td><span class="status-pill status-pill--rejected"><span class="status-dot"></span>Rejected</span></td></tr>
+          <tr><td>#CS-0037</td><td>Q2 FY2025</td><td>Scope 2</td><td>7,900</td><td>10 Oct 2024</td><td><span class="status-pill status-pill--verified"><span class="status-dot"></span>Verified</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Terminal widget -->
+    <div class="terminal">
+      <div class="terminal__bar">
+        <div class="terminal__dot" style="background:#ff5f57"></div>
+        <div class="terminal__dot" style="background:#febc2e"></div>
+        <div class="terminal__dot" style="background:#28c840"></div>
+      </div>
+      <div id="terminal-output"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── Animated counters ──
+  function animateCount(id, target, suffix) {
+    const el = document.getElementById(id);
+    let start = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) { start = target; clearInterval(timer); }
+      el.innerHTML = Math.round(start).toLocaleString() + `<span>${suffix}</span>`;
+    }, 16);
+  }
+  function showDashToast(msg, emoji) {
+    const t = document.getElementById('dash-toast');
+    t.innerHTML = (emoji||'') + ' ' + msg;
+    t.style.transform = 'translateY(0)'; t.style.opacity = '1';
+    setTimeout(() => { t.style.transform = 'translateY(60px)'; t.style.opacity = '0'; }, 3000);
+  }
+
+  const obStepsDash = [
+    { title:'Welcome to your Dashboard', body:'Your carbon command centre. Track emissions, manage submissions, and stay compliant.', demo:'<strong style="color:var(--color-primary)">Quick tour:</strong><br/>📊 Stat cards — live emissions snapshot<br/>📈 Bar chart — monthly progress<br/>📋 Submissions table — all your filings<br/>💻 Terminal — real-time sync status' },
+    { title:'Stat Cards', body:'These four cards update live. The counters animate on load and reflect your latest data sync.', demo:'<strong style="color:var(--color-primary)">Try it:</strong> The numbers roll up automatically.' },
+    { title:'Submit New Data', body:'Click "+ New Submission" in the submissions table to file your next emissions report.', demo:'<strong style="color:var(--color-primary)">Try it:</strong> Click the green "+ New Submission" button in the table header below.' },
+  ];
+
+  let obIdxDash = 0;
+  function nextObDash() {
+    obIdxDash++;
+    if (obIdxDash >= obStepsDash.length) { document.getElementById('onboard').style.display='none'; return; }
+    const s = obStepsDash[obIdxDash];
+    document.getElementById('ob-title').textContent = s.title;
+    document.getElementById('ob-body').textContent  = s.body;
+    document.getElementById('ob-demo').innerHTML    = s.demo;
+    for (let i=0;i<3;i++) document.getElementById('od'+i).style.background = i<=obIdxDash ? 'var(--color-primary)' : 'var(--color-border)';
+    if (obIdxDash === obStepsDash.length-1) document.getElementById('ob-btn').textContent = 'Get Started ✓';
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      animateCount('stat-emissions', 48200, ' tCO₂e');
+      animateCount('stat-credits',   1800,  ' units');
+      animateCount('stat-gap',       1800,  ' tCO₂e');
+      animateCount('stat-subs',      41,    '');
+    }, 300);
+
+    // ── Bar chart ──
+    const months = ['Jan','Feb','Mar','Apr','May','Jun'];
+    const vals   = [82, 76, 71, 68, 65, 61]; // % of max
+    const chart  = document.getElementById('bar-chart');
+    months.forEach((m, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'bar-wrap';
+      const bar = document.createElement('div');
+      bar.className = 'bar' + (i === 5 ? ' accent' : '');
+      bar.style.height = '0%';
+      const lbl = document.createElement('div');
+      lbl.className = 'bar-label';
+      lbl.textContent = m;
+      wrap.appendChild(bar);
+      wrap.appendChild(lbl);
+      chart.appendChild(wrap);
+      setTimeout(() => { bar.style.height = vals[i] + '%'; }, 400 + i * 80);
+    });
+
+    // ── Terminal typewriter ──
+    const lines = [
+      { prompt: '$ ', cmd: 'carbonsync status', out: '' },
+      { prompt: '',   cmd: '', out: 'API connected  ·  last sync 2m ago' },
+      { prompt: '',   cmd: '', out: '48,200 tCO2e logged for Q4 FY2025' },
+      { prompt: '',   cmd: '', out: 'Scope 2 submission #CS-0040 awaiting auditor review' },
+      { prompt: '$ ', cmd: '', out: '' },
+    ];
+    const out = document.getElementById('terminal-output');
+    let li = 0;
+    function nextLine() {
+      if (li >= lines.length - 1) {
+        // final blinking cursor
+        out.innerHTML += `<div class="terminal__line"><span class="prompt">$ </span><span class="cursor"></span></div>`;
+        return;
+      }
+      const l = lines[li++];
+      const div = document.createElement('div');
+      div.className = 'terminal__line';
+      if (l.prompt) div.innerHTML = `<span class="prompt">${l.prompt}</span><span class="cmd">${l.cmd}</span>`;
+      else          div.innerHTML = `<span class="out">${l.out}</span>`;
+      out.appendChild(div);
+      setTimeout(nextLine, 500);
+    }
+    setTimeout(nextLine, 800);
+  });
+</script>
+</body>
+</html>

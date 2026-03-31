@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarbonSync — Government Monitor</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Crect width='64' height='64' rx='14' fill='none' stroke='%23c9a84c' stroke-width='2' opacity='0.4'/%3E%3Cg transform='translate(13,10) scale(1.58)' stroke='%23c9a84c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Cpath d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z' fill='%23c9a84c' fill-opacity='0.15'/%3E%3Cpath d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12'/%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/variables.css" />
+  <link rel="stylesheet" href="../styles/base.css" />
+  <style>
+    /* ── Full-screen lock ── */
+    html, body { height: 100%; overflow: hidden; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    .shell { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar { width: 220px; min-width: 220px; background: #0d0d0d; border-right: 1px solid rgba(201,168,76,0.12); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .sidebar__logo { display: flex; align-items: center; gap: 9px; padding: 20px 18px; font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--color-text); border-bottom: 1px solid rgba(201,168,76,0.1); flex-wrap: wrap; overflow: hidden; }
+    .sidebar__badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); padding: 2px 7px; border-radius: 999px; flex-shrink: 0; white-space: nowrap; }
+    .sidebar__nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+    .sidebar__nav a { display: flex; align-items: center; gap: 10px; padding: 10px 18px; font-size: 13px; font-weight: 500; color: var(--color-text-muted); transition: var(--transition); border-left: 2px solid transparent; white-space: nowrap; cursor: pointer; text-decoration: none; }
+    .sidebar__nav a:hover, .sidebar__nav a.active { color: var(--gold-light); background: rgba(201,168,76,0.05); border-left-color: var(--gold); }
+    .sidebar__nav a svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar__footer { padding: 14px 18px; border-top: 1px solid rgba(201,168,76,0.1); font-size: 12px; color: var(--color-text-dim); }
+
+    /* ── Main ── */
+    .main { flex: 1; overflow-y: auto; overflow-x: hidden; height: 100vh; padding: 24px 28px; }
+
+    /* ── Ticker ── */
+    .ticker { background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.18); border-radius: 6px; padding: 8px 14px; overflow: hidden; white-space: nowrap; margin-bottom: 20px; }
+    .ticker-inner { display: inline-block; animation: ticker 30s linear infinite; font-size: 12px; color: var(--gold); letter-spacing: 0.02em; }
+    @keyframes ticker { 0%{transform:translateX(60vw);} 100%{transform:translateX(-100%);} }
+
+    /* ── Topbar ── */
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .topbar h1 { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--color-text); }
+    .topbar p { font-size: 13px; color: var(--color-text-muted); margin-top: 2px; }
+    .live-badge { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--gold); font-weight: 600; background: rgba(201,168,76,0.07); padding: 5px 12px; border-radius: 999px; border: 1px solid rgba(201,168,76,0.2); white-space: nowrap; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: blink 1.2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+    /* ── KPI grid ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    .kpi { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 18px; position: relative; overflow: hidden; }
+    .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .kpi__label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--color-text-muted); margin-bottom: 6px; }
+    .kpi__val { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--color-text); line-height: 1; }
+    .kpi__val sup { font-size: 12px; font-weight: 400; color: var(--color-text-muted); }
+    .kpi__delta { font-size: 11px; margin-top: 6px; }
+    .good { color: var(--green-light); } .warn { color: var(--gold); } .bad { color: #c97070; }
+
+    /* ── Two-col row ── */
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+
+    /* ── Box ── */
+    .box { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 18px; }
+    .box__title { font-size: 14px; font-weight: 600; color: var(--color-text); margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+    .box__title span { font-size: 12px; color: var(--color-text-muted); font-weight: 400; }
+
+    /* ── Progress bars ── */
+    .prog-item { margin-bottom: 12px; }
+    .prog-item:last-child { margin-bottom: 0; }
+    .prog-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-muted); margin-bottom: 5px; }
+    .prog-label b { color: var(--color-text); }
+    .prog-track { height: 6px; background: var(--color-border); border-radius: 999px; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 999px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); width: 0; }
+
+    /* ── Map dots ── */
+    .map-area { position: relative; height: 200px; }
+    .map-area svg.outline { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.1; }
+    .sdot { position: absolute; width: 11px; height: 11px; border-radius: 50%; cursor: pointer; transition: transform 0.2s; transform: translate(-50%, -50%); }
+    .sdot:hover { transform: translate(-50%,-50%) scale(1.7); }
+    .sdot::after { content: attr(data-tip); position: absolute; left: 14px; top: -4px; font-size: 11px; color: var(--color-text); white-space: nowrap; background: var(--color-surface-2); border: 1px solid rgba(201,168,76,0.2); padding: 3px 8px; border-radius: 5px; opacity: 0; pointer-events: none; transition: opacity 0.15s; z-index: 10; }
+    .sdot:hover::after { opacity: 1; }
+    .dot-r { background: var(--gold-light); box-shadow: 0 0 8px rgba(232,201,106,0.6); }
+    .dot-y { background: var(--gold-dim); box-shadow: 0 0 6px rgba(138,111,46,0.5); }
+    .dot-g { background: var(--color-text-muted); box-shadow: 0 0 4px rgba(122,112,96,0.4); }
+    .map-legend { display: flex; gap: 14px; margin-top: 10px; }
+    .map-legend span { font-size: 11px; color: var(--color-text-muted); display: flex; align-items: center; gap: 5px; }
+    .map-legend span::before { content:''; width:8px; height:8px; border-radius:50%; display:inline-block; }
+    .leg-r::before { background: var(--gold-light); } .leg-y::before { background: var(--gold-dim); } .leg-g::before { background: var(--color-text-muted); }
+
+    /* ── Table ── */
+    .tbl-box { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 18px; margin-bottom: 20px; }
+    .tbl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .tbl-header span { font-size: 14px; font-weight: 600; color: var(--color-text); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--color-text-muted); padding: 0 10px 10px; border-bottom: 1px solid var(--color-border); }
+    td { padding: 11px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--color-text); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(201,168,76,0.02); }
+    .pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .pill-g { background: rgba(45,106,79,0.15); color: var(--green-light); border: 1px solid rgba(45,106,79,0.25); }
+    .pill-y { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+    .pill-r { background: rgba(180,50,50,0.12); color: #c97070; border: 1px solid rgba(180,50,50,0.2); }
+    .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: blink 1.5s infinite; }
+
+    /* ── Alert feed ── */
+    .alert-feed { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 18px; margin-bottom: 20px; }
+    .alert-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: flex-start; }
+    .alert-item:last-child { border: none; }
+    .alert-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 700; }
+    .ai-r { background: rgba(180,50,50,0.1); color: #c97070; border: 1px solid rgba(180,50,50,0.2); }
+    .ai-y { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+    .ai-g { background: rgba(45,106,79,0.12); color: var(--green-light); border: 1px solid rgba(45,106,79,0.2); }
+    .alert-text { font-size: 13px; color: var(--color-text); }
+    .alert-time { font-size: 11px; color: var(--color-text-dim); margin-top: 2px; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: var(--transition); font-family: var(--font-body); }
+    .btn-gold { background: var(--green); color: #fff; }
+    .btn-gold:hover { background: var(--green-light); transform: translateY(-1px); }
+    .btn-ghost-gold { background: transparent; color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold-dim); }
+    .btn-ghost-gold:hover { background: rgba(201,168,76,0.07); box-shadow: inset 0 0 0 1px var(--gold), 0 0 14px rgba(201,168,76,0.1); color: var(--gold-light); }
+    .btn-danger { background: rgba(180,50,50,0.1); color: #c97070; box-shadow: inset 0 0 0 1px rgba(180,50,50,0.25); }
+    .btn-danger:hover { background: rgba(180,50,50,0.18); }
+
+    /* ── Onboarding ── */
+    .onboard { position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 200; display: flex; align-items: center; justify-content: center; }
+    .onboard.hidden { display: none; }
+    .ob-card { background: var(--color-surface); border: 1px solid rgba(201,168,76,0.2); border-radius: 16px; padding: 36px; max-width: 500px; width: 90%; box-shadow: 0 0 60px rgba(201,168,76,0.08); }
+    .ob-dots { display: flex; gap: 8px; margin-bottom: 24px; }
+    .ob-dot { flex: 1; height: 2px; border-radius: 999px; background: var(--color-border); transition: background 0.3s; }
+    .ob-dot.done { background: var(--gold); }
+    .ob-card h2 { font-family: var(--font-display); font-size: 20px; color: var(--color-text); margin-bottom: 10px; }
+    .ob-card p { font-size: 13px; color: var(--color-text-muted); line-height: 1.7; margin-bottom: 18px; }
+    .ob-demo { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 8px; padding: 14px 16px; font-size: 12px; color: var(--color-text-muted); margin-bottom: 24px; line-height: 2; }
+    .ob-demo strong { color: var(--gold); }
+    .ob-actions { display: flex; justify-content: space-between; align-items: center; }
+    .ob-skip { font-size: 12px; color: var(--color-text-dim); cursor: pointer; }
+    .ob-skip:hover { color: var(--color-text-muted); }
+    .ob-next { padding: 10px 28px; background: var(--green); color: #fff; border: none; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); font-family: var(--font-body); }
+    .ob-next:hover { background: var(--green-light); }
+
+    /* ── Modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal { background: var(--color-surface); border: 1px solid rgba(201,168,76,0.2); border-radius: 14px; padding: 28px; width: 380px; box-shadow: 0 0 40px rgba(201,168,76,0.08); }
+    .modal h3 { font-family: var(--font-display); font-size: 18px; color: var(--color-text); margin-bottom: 6px; }
+    .modal p { font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px; }
+    .modal-opts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .modal-opt { display: flex; align-items: center; gap: 12px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: border-color 0.15s; }
+    .modal-opt:hover { border-color: rgba(201,168,76,0.3); }
+    .modal-opt input { accent-color: var(--gold); width: 15px; height: 15px; }
+    .modal-opt label { font-size: 13px; color: var(--color-text); cursor: pointer; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-cancel { background: transparent; color: var(--color-text-muted); box-shadow: inset 0 0 0 1px var(--color-border); border-radius: 999px; padding: 7px 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: var(--transition); border: none; }
+    .btn-cancel:hover { color: var(--color-text); }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--color-surface-2); color: var(--color-text); border: 1px solid rgba(201,168,76,0.3); padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; transform: translateY(60px); opacity: 0; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); z-index: 999; box-shadow: 0 0 20px rgba(201,168,76,0.08); }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Responsive ── */
+    @media(max-width:900px){
+      html, body { overflow: auto; height: auto; }
+      .shell { flex-direction: column; height: auto; overflow: visible; }
+      .sidebar { display: none; }
+      .main { height: auto; overflow: visible; padding: 16px; }
+      .kpi-grid { grid-template-columns: repeat(2,1fr); }
+      .row2 { grid-template-columns: 1fr; }
+    }
+    @media(max-width:600px){
+      .kpi-grid { grid-template-columns: 1fr; }
+      .kpi__val { font-size: 22px; }
+      .tbl-box { overflow-x: auto; }
+      table { min-width: 520px; }
+      .modal { width: 92vw; }
+      .topbar h1 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Onboarding overlay ── -->
+<div class="onboard" id="onboard">
+  <div class="ob-card">
+    <div class="ob-dots">
+      <div class="ob-dot done" id="od0"></div>
+      <div class="ob-dot" id="od1"></div>
+      <div class="ob-dot" id="od2"></div>
+      <div class="ob-dot" id="od3"></div>
+    </div>
+    <h2 id="ob-title">Welcome to the Government Monitor</h2>
+    <p id="ob-body">This portal gives you real-time visibility into national carbon emissions, company compliance status, and enforcement tools — all in one secure dashboard.</p>
+    <div class="ob-demo" id="ob-demo">
+      <strong>What you can do here:</strong><br/>
+      📊 Monitor national &amp; sector-level emissions<br/>
+      🏢 Track company compliance in real time<br/>
+      ⚠️ Issue enforcement notices for non-compliance<br/>
+      📥 Export verified reports for policy use
+    </div>
+    <div class="ob-actions">
+      <span class="ob-skip" onclick="skipOnboard()">Skip tour</span>
+      <button class="btn btn-gold" onclick="nextOnboard()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Export modal ── -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <h3>Export Report</h3>
+    <p>Choose format and scope for your compliance report.</p>
+    <div class="modal-opts">
+      <div class="modal-opt"><input type="radio" name="fmt" id="fmt-csv" checked /><label for="fmt-csv">CSV — Raw data for analysis</label></div>
+      <div class="modal-opt"><input type="radio" name="fmt" id="fmt-pdf" /><label for="fmt-pdf">PDF — Formatted compliance report</label></div>
+      <div class="modal-opt"><input type="radio" name="fmt" id="fmt-json" /><label for="fmt-json">JSON — API-ready data export</label></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal('export-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="doExport()">Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Enforcement modal ── -->
+<div class="modal-overlay" id="enforce-modal">
+  <div class="modal">
+    <h3>Issue Enforcement Notice</h3>
+    <p>This will send an official notice to <strong id="enforce-company" style="color:#ef4444;"></strong> and log it in the audit trail.</p>
+    <div class="modal-opts">
+      <div class="modal-opt"><input type="radio" name="enf" id="enf-warn" checked /><label for="enf-warn">Warning Notice — 30-day cure period</label></div>
+      <div class="modal-opt"><input type="radio" name="enf" id="enf-fine" /><label for="enf-fine">Penalty Notice — Initiate fine proceedings</label></div>
+      <div class="modal-opt"><input type="radio" name="enf" id="enf-suspend" /><label for="enf-suspend">Suspension Notice — Suspend operations</label></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal('enforce-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="doEnforce()">Issue Notice</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── Shell ── -->
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      CarbonSync <span class="sidebar__badge">GOV</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="active" onclick="showToast('National Overview loaded','📊')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        National Overview
+      </a>
+      <a onclick="showToast('Sector breakdown coming soon','🏭')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+        By Sector
+      </a>
+      <a onclick="showToast('Filtering non-compliant companies…','⚠️')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Non-Compliance
+      </a>
+      <a onclick="openModal('export-modal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+        Export Reports
+      </a>
+      <a onclick="showToast('Settings panel coming soon','⚙️')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar__footer">MoEFCC · Central</div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Ticker -->
+    <div class="ticker">
+      <span class="ticker-inner">🔴 Reliance Industries Scope 3 flagged &nbsp;·&nbsp; ✅ 142 companies filed Q4 FY2025 &nbsp;·&nbsp; ⚠️ Maharashtra up 3.1% QoQ &nbsp;·&nbsp; 📊 National: 2.4 Gt CO₂e FY2025 &nbsp;·&nbsp; 🟢 India on track for 2030 interim target &nbsp;·&nbsp;</span>
+    </div>
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <h1>National Emissions Monitor</h1>
+        <p>FY2025 · All sectors · Verified data</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <div class="live-badge"><span class="live-dot"></span> Live Feed</div>
+        <button class="btn btn-gold" onclick="openModal('export-modal')">📥 Export Report</button>
+        <button class="btn btn-ghost-gold" onclick="showToast('Refreshing data feed…','🔄')">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi__label">National Total</div><div class="kpi__val" id="g-total">—<sup> Gt CO₂e</sup></div><div class="kpi__delta good">↓ 2.1% vs FY2024</div></div>
+      <div class="kpi"><div class="kpi__label">Companies Reporting</div><div class="kpi__val" id="g-cos">—</div><div class="kpi__delta good">↑ 18 new this quarter</div></div>
+      <div class="kpi"><div class="kpi__label">Non-Compliant</div><div class="kpi__val" id="g-nc">—</div><div class="kpi__delta warn">⚠ 3 under review</div></div>
+      <div class="kpi"><div class="kpi__label">Net Zero Progress</div><div class="kpi__val" id="g-nz">—<sup>%</sup></div><div class="kpi__delta good">Towards 2070</div></div>
+    </div>
+
+    <!-- Map + Progress -->
+    <div class="row2">
+      <div class="box">
+        <div class="box__title">Emissions by State <span>Hover dots for detail</span></div>
+        <div class="map-area">
+          <svg class="outline" viewBox="0 0 200 240" fill="none" stroke="#f59e0b" stroke-width="1.2">
+            <path d="M80,10 L120,8 L145,25 L155,50 L160,80 L150,110 L140,130 L130,160 L110,190 L100,220 L90,200 L75,170 L60,140 L50,110 L45,80 L55,50 L65,25 Z"/>
+          </svg>
+          <div class="sdot dot-r" style="left:38%;top:36%;" data-tip="Maharashtra · 420 Mt"></div>
+          <div class="sdot dot-r" style="left:55%;top:28%;" data-tip="Uttar Pradesh · 380 Mt"></div>
+          <div class="sdot dot-r" style="left:62%;top:22%;" data-tip="Bihar · 210 Mt"></div>
+          <div class="sdot dot-y" style="left:30%;top:20%;" data-tip="Rajasthan · 190 Mt"></div>
+          <div class="sdot dot-y" style="left:50%;top:18%;" data-tip="Madhya Pradesh · 175 Mt"></div>
+          <div class="sdot dot-y" style="left:65%;top:38%;" data-tip="Odisha · 160 Mt"></div>
+          <div class="sdot dot-g" style="left:42%;top:55%;" data-tip="Karnataka · 95 Mt"></div>
+          <div class="sdot dot-g" style="left:48%;top:65%;" data-tip="Tamil Nadu · 88 Mt"></div>
+          <div class="sdot dot-g" style="left:25%;top:42%;" data-tip="Gujarat · 82 Mt"></div>
+          <div class="sdot dot-g" style="left:70%;top:15%;" data-tip="West Bengal · 78 Mt"></div>
+        </div>
+        <div class="map-legend">
+          <span class="leg-r">High (&gt;200 Mt)</span>
+          <span class="leg-y">Medium</span>
+          <span class="leg-g">Low (&lt;100 Mt)</span>
+        </div>
+      </div>
+      <div class="box">
+        <div class="box__title">Sector vs Target</div>
+        <div class="prog-item"><div class="prog-label"><span>Energy</span><b id="p-e">0%</b></div><div class="prog-track"><div class="prog-fill" id="pf-e" style="background:#ef4444;"></div></div></div>
+        <div class="prog-item"><div class="prog-label"><span>Industry</span><b id="p-i">0%</b></div><div class="prog-track"><div class="prog-fill" id="pf-i" style="background:#f59e0b;"></div></div></div>
+        <div class="prog-item"><div class="prog-label"><span>Transport</span><b id="p-t">0%</b></div><div class="prog-track"><div class="prog-fill" id="pf-t" style="background:#f59e0b;"></div></div></div>
+        <div class="prog-item"><div class="prog-label"><span>Agriculture</span><b id="p-a">0%</b></div><div class="prog-track"><div class="prog-fill" id="pf-a" style="background:#22c55e;"></div></div></div>
+        <div class="prog-item"><div class="prog-label"><span>Buildings</span><b id="p-b">0%</b></div><div class="prog-track"><div class="prog-fill" id="pf-b" style="background:#22c55e;"></div></div></div>
+      </div>
+    </div>
+
+    <!-- Compliance table -->
+    <div class="tbl-box">
+      <div class="tbl-header">
+        <span style="font-size:14px;font-weight:600;color:#fff;">Company Compliance Status</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost-gold" onclick="showToast('Filtering non-compliant…','⚠️')">Filter: At Risk</button>
+          <button class="btn btn-gold" onclick="openModal('export-modal')">Export CSV</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Company</th><th>Sector</th><th>Emissions</th><th>Target</th><th>Gap</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Tata Steel Ltd</td><td>Steel</td><td>48,200</td><td>50,000</td><td class="good">−1,800</td><td><span class="pill pill-g"><span class="pill-dot"></span>Compliant</span></td><td><button class="btn btn-ghost-gold" style="padding:4px 12px;font-size:11px;" onclick="showToast('Tata Steel report opened','📄')">View</button></td></tr>
+          <tr><td>Reliance Industries</td><td>Energy</td><td>92,400</td><td>85,000</td><td class="bad">+7,400</td><td><span class="pill pill-r"><span class="pill-dot"></span>Non-Compliant</span></td><td><button class="btn btn-danger" style="padding:4px 12px;font-size:11px;" onclick="openEnforce('Reliance Industries')">Enforce</button></td></tr>
+          <tr><td>Infosys Ltd</td><td>Technology</td><td>11,500</td><td>12,000</td><td class="good">−500</td><td><span class="pill pill-g"><span class="pill-dot"></span>Compliant</span></td><td><button class="btn btn-ghost-gold" style="padding:4px 12px;font-size:11px;" onclick="showToast('Infosys report opened','📄')">View</button></td></tr>
+          <tr><td>ONGC Ltd</td><td>Oil &amp; Gas</td><td>78,100</td><td>75,000</td><td class="warn">+3,100</td><td><span class="pill pill-y"><span class="pill-dot"></span>At Risk</span></td><td><button class="btn btn-danger" style="padding:4px 12px;font-size:11px;" onclick="openEnforce('ONGC Ltd')">Enforce</button></td></tr>
+          <tr><td>Wipro Ltd</td><td>Technology</td><td>9,800</td><td>10,500</td><td class="good">−700</td><td><span class="pill pill-g"><span class="pill-dot"></span>Compliant</span></td><td><button class="btn btn-ghost-gold" style="padding:4px 12px;font-size:11px;" onclick="showToast('Wipro report opened','📄')">View</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Alert feed -->
+    <div class="alert-feed">
+      <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+        System Alerts
+        <button class="btn btn-ghost-gold" style="padding:4px 12px;font-size:11px;" onclick="showToast('All alerts marked as read','✅')">Mark all read</button>
+      </div>
+      <div id="alert-list">
+        <div class="alert-item"><div class="alert-icon ai-r">🔴</div><div><div class="alert-text">Reliance Industries exceeded Q4 target by 7,400 tCO₂e — enforcement notice triggered</div><div class="alert-time">Today, 9:14 AM</div></div></div>
+        <div class="alert-item"><div class="alert-icon ai-y">⚠️</div><div><div class="alert-text">ONGC Ltd at risk — 3,100 tCO₂e above target with 2 days left in reporting window</div><div class="alert-time">Today, 8:02 AM</div></div></div>
+        <div class="alert-item"><div class="alert-icon ai-g">✅</div><div><div class="alert-text">142 companies completed Q4 FY2025 submissions — national coverage at 94%</div><div class="alert-time">Yesterday, 11:59 PM</div></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── Onboarding ──
+  const obSteps = [
+    { title: 'Welcome to the Government Monitor', body: 'Real-time visibility into national carbon emissions, company compliance, and enforcement tools.', demo: '<strong>What you can do:</strong><br/>📊 Monitor national & sector emissions<br/>🏢 Track company compliance<br/>⚠️ Issue enforcement notices<br/>📥 Export verified reports' },
+    { title: 'KPI Cards', body: 'The four cards at the top show national totals, reporting coverage, non-compliance count, and Net Zero progress — all updating live.', demo: '<strong>Try it:</strong> The numbers animate on load. Click <strong>Refresh</strong> in the top bar to simulate a data sync.' },
+    { title: 'Compliance Table', body: 'Every registered company appears here with their emissions vs target. Red rows need action.', demo: '<strong>Try it:</strong> Click <strong>Enforce</strong> on a non-compliant row to issue an official notice. Click <strong>View</strong> to open their report.' },
+    { title: 'Export & Alerts', body: 'Use Export Report to download CSV, PDF, or JSON. The alert feed updates live as new events come in.', demo: '<strong>Try it:</strong> Click <strong>Export Report</strong> in the top bar, choose a format, and download.' },
+  ];
+  let obStep = 0;
+
+  function renderOnboard() {
+    document.getElementById('ob-title').textContent = obSteps[obStep].title;
+    document.getElementById('ob-body').textContent  = obSteps[obStep].body;
+    document.getElementById('ob-demo').innerHTML    = obSteps[obStep].demo;
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('od' + i).classList.toggle('done', i <= obStep);
+    }
+  }
+
+  function nextOnboard() {
+    obStep++;
+    if (obStep >= obSteps.length) { skipOnboard(); return; }
+    renderOnboard();
+    const btn = document.querySelector('.ob-actions .btn-gold');
+    if (obStep === obSteps.length - 1) btn.textContent = 'Get Started ✓';
+  }
+
+  function skipOnboard() {
+    document.getElementById('onboard').classList.add('hidden');
+  }
+
+  // ── Counters ──
+  function countUp(id, target, decimals, suffix) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let n = 0, step = target / 60;
+    const t = setInterval(() => {
+      n += step;
+      if (n >= target) { n = target; clearInterval(t); }
+      el.innerHTML = n.toFixed(decimals) + `<sup>${suffix}</sup>`;
+    }, 16);
+  }
+
+  // ── Toast ──
+  function showToast(msg, emoji) {
+    const t = document.getElementById('toast');
+    t.innerHTML = (emoji || '') + ' ' + msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── Modals ──
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  function openEnforce(company) {
+    document.getElementById('enforce-company').textContent = company;
+    openModal('enforce-modal');
+  }
+
+  function doExport() {
+    const fmt = document.querySelector('input[name="fmt"]:checked').id;
+    closeModal('export-modal');
+
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+
+    // Build content based on format
+    if (fmt === 'fmt-csv') {
+      const csv = [
+        'Company,Sector,Emissions (tCO2e),Target (tCO2e),Gap (tCO2e),Status',
+        'Tata Steel Ltd,Steel,48200,50000,-1800,Compliant',
+        'Reliance Industries,Energy,92400,85000,+7400,Non-Compliant',
+        'Infosys Ltd,Technology,11500,12000,-500,Compliant',
+        'ONGC Ltd,Oil & Gas,78100,75000,+3100,At Risk',
+        'Wipro Ltd,Technology,9800,10500,-700,Compliant',
+      ].join('\n');
+      triggerDownload(`carbonsync-compliance-${dateStr}.csv`, 'text/csv', csv);
+
+    } else if (fmt === 'fmt-json') {
+      const data = {
+        report: 'CarbonSync National Compliance Report',
+        period: 'Q4 FY2025',
+        generated: now.toISOString(),
+        companies: [
+          { name: 'Tata Steel Ltd', sector: 'Steel', emissions: 48200, target: 50000, gap: -1800, status: 'Compliant' },
+          { name: 'Reliance Industries', sector: 'Energy', emissions: 92400, target: 85000, gap: 7400, status: 'Non-Compliant' },
+          { name: 'Infosys Ltd', sector: 'Technology', emissions: 11500, target: 12000, gap: -500, status: 'Compliant' },
+          { name: 'ONGC Ltd', sector: 'Oil & Gas', emissions: 78100, target: 75000, gap: 3100, status: 'At Risk' },
+          { name: 'Wipro Ltd', sector: 'Technology', emissions: 9800, target: 10500, gap: -700, status: 'Compliant' },
+        ],
+      };
+      triggerDownload(`carbonsync-compliance-${dateStr}.json`, 'application/json', JSON.stringify(data, null, 2));
+
+    } else if (fmt === 'fmt-pdf') {
+      // Generate a minimal HTML-based PDF via print dialog
+      const html = `<!DOCTYPE html><html><head><title>CarbonSync Compliance Report</title>
+      <style>
+        body{font-family:Arial,sans-serif;padding:40px;color:#111;}
+        h1{font-size:22px;margin-bottom:4px;}
+        p{font-size:13px;color:#555;margin-bottom:24px;}
+        table{width:100%;border-collapse:collapse;font-size:13px;}
+        th{background:#111;color:#fff;padding:10px;text-align:left;}
+        td{padding:9px 10px;border-bottom:1px solid #e5e7eb;}
+        .good{color:#2d6a4f;font-weight:600;} .bad{color:#b43232;font-weight:600;} .warn{color:#92400e;font-weight:600;}
+      </style></head><body>
+      <h1>CarbonSync — National Compliance Report</h1>
+      <p>Period: Q4 FY2025 &nbsp;|&nbsp; Generated: ${now.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</p>
+      <table>
+        <thead><tr><th>Company</th><th>Sector</th><th>Emissions (tCO2e)</th><th>Target</th><th>Gap</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Tata Steel Ltd</td><td>Steel</td><td>48,200</td><td>50,000</td><td class="good">-1,800</td><td class="good">Compliant</td></tr>
+          <tr><td>Reliance Industries</td><td>Energy</td><td>92,400</td><td>85,000</td><td class="bad">+7,400</td><td class="bad">Non-Compliant</td></tr>
+          <tr><td>Infosys Ltd</td><td>Technology</td><td>11,500</td><td>12,000</td><td class="good">-500</td><td class="good">Compliant</td></tr>
+          <tr><td>ONGC Ltd</td><td>Oil &amp; Gas</td><td>78,100</td><td>75,000</td><td class="warn">+3,100</td><td class="warn">At Risk</td></tr>
+          <tr><td>Wipro Ltd</td><td>Technology</td><td>9,800</td><td>10,500</td><td class="good">-700</td><td class="good">Compliant</td></tr>
+        </tbody>
+      </table>
+      </body></html>`;
+      const win = window.open('', '_blank');
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(() => { win.print(); }, 400);
+    }
+
+    showToast('Report downloaded');
+  }
+
+  function triggerDownload(filename, mime, content) {
+    const blob = new Blob([content], { type: mime });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function doEnforce() {
+    const company = document.getElementById('enforce-company').textContent;
+    const type = document.querySelector('input[name="enf"]:checked').id;
+    const labels = { 'enf-warn': 'Warning Notice', 'enf-fine': 'Penalty Notice', 'enf-suspend': 'Suspension Notice' };
+    closeModal('enforce-modal');
+    showToast(labels[type] + ' issued to ' + company, '⚖️');
+    // Push to alert feed
+    const list = document.getElementById('alert-list');
+    const div = document.createElement('div');
+    div.className = 'alert-item';
+    div.style.cssText = 'opacity:0;transform:translateY(-8px);transition:all 0.35s ease;';
+    div.innerHTML = `<div class="alert-icon ai-r">!</div><div><div class="alert-text">${labels[type]} issued to ${company}</div><div class="alert-time">Just now</div></div>`;
+    list.prepend(div);
+    requestAnimationFrame(() => { div.style.opacity = '1'; div.style.transform = 'translateY(0)'; });
+  }
+
+  // ── Close modals on backdrop click ──
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+  });
+
+  // ── Init ──
+  document.addEventListener('DOMContentLoaded', () => {
+    renderOnboard();
+    setTimeout(() => {
+      countUp('g-total', 2.4, 1, ' Gt CO₂e');
+      countUp('g-cos',   142, 0, '');
+      countUp('g-nc',    7,   0, '');
+      countUp('g-nz',    34,  0, '%');
+    }, 300);
+
+    const bars = [
+      { f:'pf-e', l:'p-e', v:78 }, { f:'pf-i', l:'p-i', v:62 },
+      { f:'pf-t', l:'p-t', v:55 }, { f:'pf-a', l:'p-a', v:41 },
+      { f:'pf-b', l:'p-b', v:38 },
+    ];
+    setTimeout(() => {
+      bars.forEach(b => {
+        document.getElementById(b.f).style.width = b.v + '%';
+        document.getElementById(b.l).textContent = b.v + '%';
+      });
+    }, 500);
+
+    // Live alert push every 12s
+    const liveAlerts = [
+      { cls:'ai-g', icon:'✅', text:'Wipro Ltd Q4 submission verified by auditor Priya Sharma' },
+      { cls:'ai-y', icon:'⚠️', text:'Submission deadline in 48h — 8 companies yet to file' },
+    ];
+    let ai = 0;
+    setInterval(() => {
+      if (ai >= liveAlerts.length) return;
+      const a = liveAlerts[ai++];
+      const list = document.getElementById('alert-list');
+      const div = document.createElement('div');
+      div.className = 'alert-item';
+      div.style.cssText = 'opacity:0;transform:translateY(-8px);transition:all 0.35s ease;';
+      div.innerHTML = `<div class="alert-icon ${a.cls}">${a.icon}</div><div><div class="alert-text">${a.text}</div><div class="alert-time">Just now</div></div>`;
+      list.prepend(div);
+      requestAnimationFrame(() => { div.style.opacity = '1'; div.style.transform = 'translateY(0)'; });
+    }, 12000);
+  });
+</script>
+</body>
+</html>

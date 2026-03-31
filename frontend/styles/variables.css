@@ -1,0 +1,54 @@
+/* ============================================================
+   CarbonSync — Monochromatic Black & Gold Design System
+   ============================================================ */
+:root {
+  /* ── Core palette ── */
+  --color-bg:            #0a0a0a;   /* near-black page background */
+  --color-surface:       #111111;   /* card / panel surface */
+  --color-surface-2:     #1a1a1a;   /* elevated surface */
+  --color-border:        #2a2a2a;   /* subtle dividers */
+
+  /* ── Gold palette ── */
+  --gold:                #c9a84c;   /* base gold */
+  --gold-light:          #e8c96a;   /* highlight gold */
+  --gold-dim:            #8a6f2e;   /* muted gold */
+  --gold-glow:           rgba(201,168,76,0.18);  /* glow fill */
+
+  /* ── Glossy gold border gradient ── */
+  --gold-border: linear-gradient(135deg, #e8c96a 0%, #c9a84c 40%, #8a6f2e 60%, #c9a84c 80%, #e8c96a 100%);
+
+  /* ── Green (accent only — sparingly) ── */
+  --green:               #2d6a4f;
+  --green-light:         #52a87a;
+
+  /* ── Text ── */
+  --color-text:          #f0ece0;   /* warm off-white */
+  --color-text-muted:    #7a7060;   /* muted warm grey */
+  --color-text-dim:      #3a3530;   /* very dim */
+
+  /* ── Spacing ── */
+  --space-xs:  8px;
+  --space-sm:  16px;
+  --space-md:  32px;
+  --space-lg:  64px;
+  --space-xl:  120px;
+  --space-2xl: 180px;
+
+  /* ── Radius ── */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   24px;
+  --radius-pill: 999px;
+
+  /* ── Typography ── */
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  /* ── Elevation ── */
+  --shadow-soft:  0 2px 20px rgba(0,0,0,0.6);
+  --shadow-gold:  0 0 24px rgba(201,168,76,0.12);
+  --shadow-hover: 0 8px 40px rgba(0,0,0,0.8), 0 0 20px rgba(201,168,76,0.1);
+
+  /* ── Motion ── */
+  --transition: all 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+}

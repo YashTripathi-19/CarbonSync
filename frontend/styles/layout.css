@@ -1,0 +1,55 @@
+/* ============================================================
+   Layout — container, sections, grid utilities
+   ============================================================ */
+
+/* --- Container --- */
+.container {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 5vw;
+}
+
+/* --- Sections --- */
+.section {
+  padding: var(--space-xl) 0;
+}
+.section--alt {
+  background: var(--color-surface);
+}
+
+/* --- Flex utilities --- */
+.flex         { display: flex; }
+.flex-center  { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-col     { display: flex; flex-direction: column; }
+
+/* --- Grid utilities --- */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+/* --- Responsive --- */
+@media (max-width: 1024px) {
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .grid-2,
+  .grid-3 { grid-template-columns: 1fr; }
+
+  .section { padding: var(--space-lg) 0; }
+
+  .container { padding: 0 var(--space-sm); }
+}
+
+@media (max-width: 480px) {
+  .section { padding: var(--space-md) 0; }
+}

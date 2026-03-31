@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarbonSync — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/variables.css" />
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--color-bg); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+
+    .back-link { position: fixed; top: 28px; left: 32px; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-muted); transition: var(--transition); }
+    .back-link:hover { color: var(--gold); }
+    .back-link svg { width: 16px; height: 16px; }
+
+    .logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--color-text); margin-bottom: 12px; }
+    .tagline { font-size: 13px; color: var(--color-text-muted); margin-bottom: 48px; text-align: center; }
+
+    .portal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; max-width: 780px; }
+
+    .portal-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 32px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .portal-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .portal-card:hover { border-color: rgba(201,168,76,0.3); transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+    .portal-card:hover::before { opacity: 1; }
+
+    .portal-card__icon {
+      width: 52px; height: 52px;
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold);
+    }
+    .portal-card__icon svg { width: 24px; height: 24px; }
+    .portal-card__title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--color-text); }
+    .portal-card__desc { font-size: 12px; color: var(--color-text-muted); line-height: 1.6; }
+    .portal-card__cta { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-top: 4px; }
+
+    .divider-text { font-size: 11px; color: var(--color-text-dim); letter-spacing: 0.1em; text-transform: uppercase; margin: 36px 0 20px; }
+
+    .admin-link { font-size: 13px; color: var(--color-text-muted); }
+    .admin-link a { color: var(--gold); font-weight: 600; }
+    .admin-link a:hover { color: var(--gold-light); }
+
+    @media(max-width: 640px) {
+      .portal-grid { grid-template-columns: 1fr; max-width: 360px; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="../index.html" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  Back to home
+</a>
+
+<div class="logo">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);">
+    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+  </svg>
+  CarbonSync
+</div>
+<p class="tagline">Choose your portal to continue</p>
+
+<div class="portal-grid">
+
+  <!-- Company -->
+  <a href="login-company.html" class="portal-card">
+    <div class="portal-card__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+    </div>
+    <div class="portal-card__title">Company</div>
+    <div class="portal-card__desc">Submit emissions data, track reduction targets, and manage carbon credits.</div>
+    <div class="portal-card__cta">Sign In →</div>
+  </a>
+
+  <!-- Auditor -->
+  <a href="login-auditor.html" class="portal-card">
+    <div class="portal-card__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    </div>
+    <div class="portal-card__title">Auditor</div>
+    <div class="portal-card__desc">Review submissions, flag discrepancies, and issue digital certifications.</div>
+    <div class="portal-card__cta">Sign In →</div>
+  </a>
+
+  <!-- Government -->
+  <a href="login-govt.html" class="portal-card">
+    <div class="portal-card__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+    </div>
+    <div class="portal-card__title">Government</div>
+    <div class="portal-card__desc">Monitor national emissions, enforce compliance, and access verified data feeds.</div>
+    <div class="portal-card__cta">Sign In →</div>
+  </a>
+
+</div>
+
+<p class="divider-text">· · ·</p>
+<p class="admin-link">New to CarbonSync? <a href="#services" onclick="window.location='../index.html#services'">View our plans</a></p>
+
+</body>
+</html>

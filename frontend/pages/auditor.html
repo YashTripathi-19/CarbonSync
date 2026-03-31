@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarbonSync — Auditor Portal</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Crect width='64' height='64' rx='14' fill='none' stroke='%23c9a84c' stroke-width='2' opacity='0.4'/%3E%3Cg transform='translate(13,10) scale(1.58)' stroke='%23c9a84c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Cpath d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z' fill='%23c9a84c' fill-opacity='0.15'/%3E%3Cpath d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12'/%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/variables.css" />
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="../styles/layout.css" />
+  <link rel="stylesheet" href="../styles/components.css" />
+  <style>
+    body { background: var(--color-bg); color: var(--color-text); }
+    .dash-shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+    .sidebar { background: #0d0d0d; border-right: 1px solid rgba(201,168,76,0.12); padding: 24px 0; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
+    .sidebar__logo { display: flex; align-items: center; gap: 9px; padding: 0 20px 24px; font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--color-text); border-bottom: 1px solid rgba(201,168,76,0.1); flex-wrap: wrap; overflow: hidden; }
+    .sidebar__badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); padding: 2px 7px; border-radius: 999px; margin-left: 2px; flex-shrink: 0; white-space: nowrap; }
+    .sidebar__nav { flex: 1; padding: 16px 0; }
+    .sidebar__nav a { display: flex; align-items: center; gap: 11px; padding: 11px 20px; font-size: 13px; font-weight: 500; color: var(--color-text-muted); transition: var(--transition); border-left: 2px solid transparent; cursor: pointer; }
+    .sidebar__nav a:hover, .sidebar__nav a.active { color: var(--gold-light); background: rgba(201,168,76,0.05); border-left-color: var(--gold); }
+    .sidebar__nav a svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar__footer { padding: 16px 20px; border-top: 1px solid rgba(201,168,76,0.1); font-size: 12px; color: var(--color-text-dim); }
+    .dash-main { padding: 32px 36px; }
+    .dash-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .dash-topbar h1 { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--color-text); }
+    .dash-topbar p { font-size: 13px; color: var(--color-text-muted); margin-top: 3px; }
+    .live-badge { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--gold); font-weight: 600; background: rgba(201,168,76,0.07); padding: 5px 14px; border-radius: 999px; border: 1px solid rgba(201,168,76,0.2); }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: blink 1.2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--color-surface); border-radius: 12px; padding: 22px; border: 1px solid var(--color-border); position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .stat-card__label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: 8px; }
+    .stat-card__value { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--color-text); line-height: 1; }
+    .queue-box { background: var(--color-surface); border-radius: 12px; padding: 22px; border: 1px solid var(--color-border); margin-bottom: 20px; }
+    .queue-box__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .queue-box__header span { font-size: 14px; font-weight: 600; color: var(--color-text); }
+    .queue-box__header small { font-size: 12px; color: var(--color-text-muted); }
+    .queue-item { border: 1px solid var(--color-border); border-radius: 12px; padding: 16px 18px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; transition: var(--transition); cursor: pointer; }
+    .queue-item:hover { border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.02); }
+    .queue-item.expanded { border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.02); }
+    .queue-item__meta { font-size: 11px; color: var(--color-text-muted); margin-top: 3px; }
+    .queue-item__actions { display: flex; gap: 8px; }
+    .btn-verify { padding: 7px 18px; background: var(--green); color: #fff; border: none; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); font-family: var(--font-body); }
+    .btn-verify:hover { background: var(--green-light); transform: translateY(-1px); }
+    .btn-flag { padding: 7px 18px; background: transparent; color: #c97070; border: 1px solid rgba(180,50,50,0.3); border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); font-family: var(--font-body); }
+    .btn-flag:hover { background: rgba(180,50,50,0.08); border-color: #c97070; }
+    .expand-panel { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--color-border); }
+    .expand-panel.open { display: block; }
+    .data-row { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .data-row:last-child { border: none; }
+    .data-row__key { color: var(--color-text-muted); }
+    .data-row__val { font-weight: 600; color: var(--color-text); }
+    .note-area { width: 100%; border: 1px solid var(--color-border); border-radius: 12px; padding: 10px 14px; font-size: 12px; font-family: var(--font-body); resize: vertical; min-height: 64px; outline: none; transition: var(--transition); background: var(--color-bg); color: var(--color-text); }
+    .note-area:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.08); }
+    .typing-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-muted); padding: 8px 0; }
+    .typing-dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); margin: 0 2px; animation: bounce 1.2s infinite; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,80%,100%{transform:translateY(0);} 40%{transform:translateY(-5px);} }
+    .feed-box { background: var(--color-surface); border-radius: 12px; padding: 22px; border: 1px solid var(--color-border); }
+    .feed-box__title { font-size: 14px; font-weight: 600; color: var(--color-text); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .feed-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: flex-start; }
+    .feed-item:last-child { border: none; }
+    .feed-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; font-weight: 700; }
+    .feed-icon--gold { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+    .feed-icon--dim  { background: rgba(255,255,255,0.05); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+    .feed-icon--red  { background: rgba(180,50,50,0.1); color: #c97070; border: 1px solid rgba(180,50,50,0.2); }
+    .feed-text { font-size: 13px; color: var(--color-text); }
+    .feed-time { font-size: 11px; color: var(--color-text-dim); margin-top: 2px; }
+    @media(max-width:900px){ .dash-shell{grid-template-columns:1fr;} .sidebar{display:none;} .stats-grid{grid-template-columns:repeat(2,1fr);} }
+    @media(max-width:600px){
+      .stats-grid{grid-template-columns:1fr;}
+      .dash-main{padding:20px 16px;}
+      .dash-topbar h1{font-size:18px;}
+      .stat-card__value{font-size:22px;}
+      .queue-item{grid-template-columns:1fr; gap:10px;}
+      .queue-item__actions{justify-content:flex-start;}
+    }
+  </style>
+</head>
+<body>
+<div class="dash-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      CarbonSync
+      <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);padding:2px 8px;border-radius:999px;margin-left:4px;">Auditor</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a href="auditor.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Review Queue
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Certified
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Flagged
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </a>
+    </nav>
+    <div class="sidebar__footer">Priya Sharma · GreenAudit India</div>
+  </aside>
+
+  <!-- Main -->
+  <main class="dash-main">
+
+    <div class="dash-topbar">
+      <div>
+        <h1>Review Queue</h1>
+        <p style="font-size:14px;margin-top:4px;">4 submissions awaiting your review</p>
+      </div>
+      <div class="live-badge"><span class="live-dot"></span> Syncing</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card__label">Pending Review</div>
+        <div class="stat-card__value" id="s-pending">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Verified This Month</div>
+        <div class="stat-card__value" id="s-verified">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Flagged</div>
+        <div class="stat-card__value" id="s-flagged">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Avg. Review Time</div>
+        <div class="stat-card__value" style="font-size:24px;" id="s-time">—</div>
+      </div>
+    </div>
+
+    <!-- Review queue -->
+    <div class="queue-box">
+      <div class="queue-box__header">
+        <span style="font-size:15px;font-weight:600;">Pending Submissions</span>
+        <span style="font-size:13px;color:var(--color-text-muted);">Click a row to expand details</span>
+      </div>
+
+      <!-- Item 1 -->
+      <div class="queue-item" onclick="toggleExpand(this)">
+        <div>
+          <div style="font-weight:600;font-size:14px;">#CS-0040 · Tata Steel Ltd · Scope 2 · Q4 FY2025</div>
+          <div class="queue-item__meta">Submitted 27 Mar 2025 · 8,200 tCO₂e · <span style="color:#ca8a04;font-weight:600;">High priority</span></div>
+          <div class="expand-panel">
+            <div class="data-row"><span class="data-row__key">Company</span><span class="data-row__val">Tata Steel Ltd</span></div>
+            <div class="data-row"><span class="data-row__key">Scope</span><span class="data-row__val">Scope 2 (Indirect)</span></div>
+            <div class="data-row"><span class="data-row__key">Emission Value</span><span class="data-row__val">8,200 tCO₂e</span></div>
+            <div class="data-row"><span class="data-row__key">Reporting Period</span><span class="data-row__val">Q4 FY2025 (Jan–Mar)</span></div>
+            <div class="data-row"><span class="data-row__key">Supporting Docs</span><span class="data-row__val">3 files attached</span></div>
+            <div style="margin-top:14px;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Auditor Notes</div>
+              <textarea class="note-area" placeholder="Add your review notes here…" onclick="event.stopPropagation()"></textarea>
+              <div class="typing-row" id="typing-1" style="display:none;">
+                <div class="typing-dots"><span></span><span></span><span></span></div>
+                AI assistant is analysing emission factors…
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="queue-item__actions">
+          <button class="btn-verify" onclick="event.stopPropagation();verifyItem(this)">Verify</button>
+          <button class="btn-flag" onclick="event.stopPropagation();flagItem(this)">Flag</button>
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="queue-item" onclick="toggleExpand(this)">
+        <div>
+          <div style="font-weight:600;font-size:14px;">#CS-0043 · Infosys Ltd · Scope 1 · Q4 FY2025</div>
+          <div class="queue-item__meta">Submitted 29 Mar 2025 · 4,100 tCO₂e · <span style="color:var(--color-text-muted);">Normal</span></div>
+          <div class="expand-panel">
+            <div class="data-row"><span class="data-row__key">Company</span><span class="data-row__val">Infosys Ltd</span></div>
+            <div class="data-row"><span class="data-row__key">Scope</span><span class="data-row__val">Scope 1 (Direct)</span></div>
+            <div class="data-row"><span class="data-row__key">Emission Value</span><span class="data-row__val">4,100 tCO₂e</span></div>
+            <div class="data-row"><span class="data-row__key">Reporting Period</span><span class="data-row__val">Q4 FY2025 (Jan–Mar)</span></div>
+            <div class="data-row"><span class="data-row__key">Supporting Docs</span><span class="data-row__val">2 files attached</span></div>
+            <div style="margin-top:14px;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Auditor Notes</div>
+              <textarea class="note-area" placeholder="Add your review notes here…" onclick="event.stopPropagation()"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="queue-item__actions">
+          <button class="btn-verify" onclick="event.stopPropagation();verifyItem(this)">Verify</button>
+          <button class="btn-flag" onclick="event.stopPropagation();flagItem(this)">Flag</button>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="queue-item" onclick="toggleExpand(this)">
+        <div>
+          <div style="font-weight:600;font-size:14px;">#CS-0044 · Reliance Industries · Scope 3 · Q4 FY2025</div>
+          <div class="queue-item__meta">Submitted 30 Mar 2025 · 22,600 tCO₂e · <span style="color:#ef4444;font-weight:600;">Urgent</span></div>
+          <div class="expand-panel">
+            <div class="data-row"><span class="data-row__key">Company</span><span class="data-row__val">Reliance Industries</span></div>
+            <div class="data-row"><span class="data-row__key">Scope</span><span class="data-row__val">Scope 3 (Value Chain)</span></div>
+            <div class="data-row"><span class="data-row__key">Emission Value</span><span class="data-row__val">22,600 tCO₂e</span></div>
+            <div class="data-row"><span class="data-row__key">Reporting Period</span><span class="data-row__val">Q4 FY2025 (Jan–Mar)</span></div>
+            <div class="data-row"><span class="data-row__key">Supporting Docs</span><span class="data-row__val">7 files attached</span></div>
+            <div style="margin-top:14px;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Auditor Notes</div>
+              <textarea class="note-area" placeholder="Add your review notes here…" onclick="event.stopPropagation()"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="queue-item__actions">
+          <button class="btn-verify" onclick="event.stopPropagation();verifyItem(this)">Verify</button>
+          <button class="btn-flag" onclick="event.stopPropagation();flagItem(this)">Flag</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity feed -->
+    <div class="feed-box">
+      <div style="font-size:15px;font-weight:600;margin-bottom:16px;">Live Activity Feed</div>
+      <div id="feed-list">
+        <div class="feed-item">
+          <div class="feed-icon feed-icon--gold">V</div>
+          <div><div style="font-size:14px;font-weight:500;">You verified #CS-0041 · Tata Steel Scope 1</div><div class="feed-time">2 hours ago</div></div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-icon feed-icon--dim">F</div>
+          <div><div style="font-size:14px;font-weight:500;">You flagged #CS-0038 · Tata Steel Scope 3 — discrepancy in transport data</div><div class="feed-time">Yesterday, 4:12 PM</div></div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-icon feed-icon--gold">V</div>
+          <div><div style="font-size:14px;font-weight:500;">You verified #CS-0037 · Tata Steel Scope 2</div><div class="feed-time">Yesterday, 11:30 AM</div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Animated counters
+    function count(id, val, suffix='') {
+      const el = document.getElementById(id);
+      let n = 0, step = val / 40;
+      const t = setInterval(() => {
+        n += step; if (n >= val) { n = val; clearInterval(t); }
+        el.textContent = Math.round(n) + suffix;
+      }, 20);
+    }
+    setTimeout(() => {
+      count('s-pending',  4);
+      count('s-verified', 18);
+      count('s-flagged',  3);
+      document.getElementById('s-time').textContent = '1.4h';
+    }, 300);
+
+    // Show typing indicator when note textarea is focused
+    document.querySelectorAll('.note-area').forEach(ta => {
+      ta.addEventListener('focus', () => {
+        const typing = document.getElementById('typing-1');
+        if (typing) { typing.style.display = 'flex'; setTimeout(() => { typing.style.display = 'none'; }, 2200); }
+      });
+    });
+
+    // Live feed: push a new item every 8s
+    const feedEvents = [
+      { icon: 'N', cls: 'feed-icon--dim',  text: 'New submission #CS-0045 arrived from ONGC Ltd' },
+      { icon: 'N', cls: 'feed-icon--dim',  text: 'Deadline reminder: 2 submissions due by Apr 5' },
+      { icon: 'V', cls: 'feed-icon--gold', text: 'Rahul Mehta verified #CS-0042 · Wipro Scope 1' },
+    ];
+    let fi = 0;
+    setInterval(() => {
+      if (fi >= feedEvents.length) return;
+      const e = feedEvents[fi++];
+      const list = document.getElementById('feed-list');
+      const div = document.createElement('div');
+      div.className = 'feed-item';
+      div.style.opacity = '0';
+      div.style.transform = 'translateY(-8px)';
+      div.style.transition = 'all 0.4s ease';
+      div.innerHTML = `<div class="feed-icon ${e.cls}">${e.icon}</div><div><div style="font-size:14px;font-weight:500;">${e.text}</div><div class="feed-time">Just now</div></div>`;
+      list.prepend(div);
+      requestAnimationFrame(() => { div.style.opacity = '1'; div.style.transform = 'translateY(0)'; });
+    }, 8000);
+  });
+
+  function toggleExpand(item) {
+    const panel = item.querySelector('.expand-panel');
+    panel.classList.toggle('open');
+    item.classList.toggle('expanded');
+  }
+
+  function verifyItem(btn) {
+    const item = btn.closest('.queue-item');
+    item.style.transition = 'all 0.4s ease';
+    item.style.opacity = '0';
+    item.style.transform = 'translateX(20px)';
+    setTimeout(() => item.remove(), 400);
+    const s = document.getElementById('s-pending');
+    s.textContent = Math.max(0, parseInt(s.textContent) - 1);
+    const v = document.getElementById('s-verified');
+    v.textContent = parseInt(v.textContent) + 1;
+  }
+
+  function flagItem(btn) {
+    const item = btn.closest('.queue-item');
+    const isFlagged = item.dataset.flagged === 'true';
+
+    if (isFlagged) {
+      // Unflag — restore original state
+      item.dataset.flagged = 'false';
+      item.style.borderColor = '';
+      item.style.background = '';
+      btn.textContent = 'Flag';
+      btn.style.cssText = '';
+    } else {
+      // Flag — apply flagged state using palette tokens
+      item.dataset.flagged = 'true';
+      item.style.borderColor = 'rgba(180,50,50,0.4)';
+      item.style.background = 'rgba(180,50,50,0.06)';
+      btn.textContent = 'Unflag';
+      btn.style.background = 'rgba(180,50,50,0.12)';
+      btn.style.color = '#c97070';
+      btn.style.boxShadow = 'inset 0 0 0 1px rgba(180,50,50,0.35)';
+    }
+  }
+</script>
+</body>
+</html>
