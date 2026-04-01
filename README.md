@@ -1,12 +1,12 @@
-# CarbonSync — Carbon Data Management Platform
+# 🌱 CarbonSync - Carbon Data Management Platform
 
-> **Live Demo:** [https://carbon-sync.netlify.app](https://carbon-sync.netlify.app)
+> **🔴 Live Demo:** [https://carbon-sync.netlify.app](https://carbon-sync.netlify.app)
 
-CarbonSync is a full-stack carbon compliance platform that connects companies, auditors, and government bodies on a single system to track, verify, and report carbon emissions — transparently and in real time.
+CarbonSync is a full-stack web application designed to simplify the process of tracking, managing, and verifying carbon emissions. It provides a centralized platform where companies, auditors, and authorities can collaborate efficiently.
 
 ---
 
-## Live Preview
+## 🌐 Live Portals
 
 | Portal | Link |
 |--------|------|
@@ -17,7 +17,31 @@ CarbonSync is a full-stack carbon compliance platform that connects companies, a
 
 ---
 
-## Tech Stack
+## 🚀 Problem Statement
+
+Carbon emission tracking in industries is often manual, scattered, and inefficient.  
+Organizations face challenges in:
+- Managing emission data
+- Generating structured reports
+- Ensuring transparency and compliance
+
+At the same time, auditors and authorities lack a unified system to verify and monitor this data effectively.
+
+---
+
+## 💡 Solution
+
+CarbonSync addresses these challenges by providing a centralized digital platform that:
+
+- Enables companies to track and manage carbon emissions
+- Allows auditors to verify and validate data
+- Helps authorities monitor compliance and activities
+
+The platform connects all stakeholders into a single, streamlined workflow.
+
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -25,10 +49,11 @@ CarbonSync is a full-stack carbon compliance platform that connects companies, a
 | Backend | Java Spring Boot 3, Maven |
 | Database | PostgreSQL (wiring in progress) |
 | Deployment | Netlify (frontend) · Railway (backend — upcoming) |
+| Tools | Git, GitHub, Postman |
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 CarbonSync/
@@ -59,21 +84,33 @@ CarbonSync/
 
 ---
 
-## Features
+## ⚙️ Features (Built / In Progress)
 
 - Monochromatic black & gold design system
 - Interactive Spline 3D hero on landing page
 - Three role-based portals — Company, Auditor, Government
 - Animated dashboards with live counters, charts, and terminal widgets
-- Auditor review queue with expand/verify/flag toggle
+- Auditor review queue with expand / verify / flag toggle
 - Government compliance table with real CSV, JSON, and PDF export
 - Onboarding tour on each portal for new users
 - Fully responsive — mobile hamburger nav, stacked layouts
-- Spring Boot REST API scaffold with stub data (DB wiring in progress)
+- User authentication and role-based access
+- Emission data tracking and management
+- Report generation and structured data handling
+- Auditor verification workflow
+- Centralized dashboard for monitoring
 
 ---
 
-## Run Locally
+## 🧠 System Design (Concept)
+
+- Role-based system (Company / Auditor / Authority)
+- Centralized database for storing emission data
+- REST APIs for communication between frontend and backend
+
+---
+
+## ⚡ Run Locally
 
 **Frontend**
 ```bash
@@ -91,7 +128,7 @@ mvn spring-boot:run
 
 ---
 
-## API Endpoints
+## 🔌 API Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -105,25 +142,34 @@ mvn spring-boot:run
 
 ---
 
-## Current Status
+## 📌 Current Status
 
-The frontend prototype is fully built and live. The Spring Boot backend compiles and runs with stub data. Database wiring and JWT authentication are the next milestones.
-
----
-
-## Roadmap
-
-- [ ] Wire PostgreSQL via Railway
-- [ ] Implement JWT authentication
-- [ ] Connect frontend API calls to live backend
-- [ ] Add AI-assisted anomaly detection for auditors
-- [ ] Carbon credit marketplace module
+🚧 The frontend prototype is fully built and live. The Spring Boot backend compiles and runs with stub data. Database wiring and JWT authentication are the next milestones.
 
 ---
 
-## Contributors
+## 🎯 Future Scope
+
+- Wire PostgreSQL via Railway
+- Implement JWT authentication
+- Connect frontend API calls to live backend
+- Advanced analytics and insights
+- AI-assisted anomaly detection for auditors
+- Carbon credit marketplace module
+- Integration with external systems
+- Scalable architecture for larger datasets
+
+---
+
+## 🤝 Contributors
 
 - Yash Tripathi
 - Somiya Chaturvedi
 - Tarang Nemani
 - Utkarsh Tiwari
+
+---
+
+## 📬 Contact
+
+For any queries or collaboration, feel free to connect.
